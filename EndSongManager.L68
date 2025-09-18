@@ -1,0 +1,620 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 6/23/2025 10:27:19 AM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : End Song Manager
+00000000                             3  * Written by : Albert Castrejon
+00000000                             4  * Date       : 6/16/25
+00000000                             5  * Description: Handles the end state of a song
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  
+00000000                             8  ; Displays all of the song stats
+00000000                             9  SONG_ENDING_SEQUENCE:
+00000000                            10      ; Display stats window ----------------------------------------------------
+Line 11 ERROR: Undefined symbol
+00000000  203C 004DBD16             11      move.l  #SET_PEN_COLOR_TASK, d0
+00000006  7200                      12      move.l  #0, d1
+00000008  4E4F                      13      trap    #15
+Line 14 ERROR: Undefined symbol
+0000000A  203C 004DBD16             14      move.l  #SET_PEN_FILL_COLOR_TASK, d0
+Line 15 ERROR: Undefined symbol
+00000010  223C 004DBD16             15      move.l  #WHITE, d1
+00000016  4E4F                      16      trap    #15
+Line 17 ERROR: Undefined symbol
+00000018  203C 004DBD16             17      move.l  #SET_PEN_WIDTH_TASK, d0
+0000001E  7203                      18      move.l  #3, d1
+00000020  4E4F                      19      trap    #15
+00000022                            20  
+Line 21 ERROR: Undefined symbol
+00000022  203C 004DBD16             21      move.l  #DRAW_RECT_TASK, d0
+Line 22 ERROR: Invalid syntax
+00000028                            22      move.l  #(SCREEN_WIDTH/2-(STATS_OUTER_BOX_WIDTH/2)), d1
+Line 23 ERROR: Invalid syntax
+00000028                            23      move.l  #(SCREEN_HEIGHT/2-(STATS_OUTER_BOX_HEIGHT/2)), d2
+Line 24 ERROR: Invalid syntax
+00000028                            24      move.l  #(SCREEN_WIDTH/2+(STATS_OUTER_BOX_WIDTH/2)), d3
+Line 25 ERROR: Invalid syntax
+00000028                            25      move.l  #(SCREEN_HEIGHT/2+(STATS_OUTER_BOX_HEIGHT/2)), d4
+00000028  4E4F                      26      trap    #15
+0000002A                            27      
+Line 28 ERROR: Undefined symbol
+0000002A  203C 004DBD16             28      move.l  #SET_PEN_FILL_COLOR_TASK, d0
+00000030  7200                      29      move.l  #0, d1
+00000032  4E4F                      30      trap    #15
+Line 31 ERROR: Undefined symbol
+00000034  203C 004DBD16             31      move.l  #DRAW_RECT_TASK, d0
+Line 32 ERROR: Invalid syntax
+0000003A                            32      move.l  #(SCREEN_WIDTH/2-(STATS_INNER_BOX_WIDTH/2)), d1
+Line 33 ERROR: Invalid syntax
+0000003A                            33      move.l  #(SCREEN_HEIGHT/2-(STATS_OUTER_BOX_HEIGHT/2)+STATS_BOXES_TOP_PADDING), d2
+Line 34 ERROR: Invalid syntax
+0000003A                            34      move.l  #(SCREEN_WIDTH/2+(STATS_INNER_BOX_WIDTH/2)), d3
+0000003A  2801                      35      move.l  d1, d4
+Line 36 ERROR: Undefined symbol
+0000003C  0684 004DBD16             36      add.l   #STATS_INNER_BOX_HEIGHT, d4
+00000042  4E4F                      37      trap    #15
+00000044                            38      ; Display Info strings ----------------------------------------------------
+00000044                            39  
+00000044                            40      ; Set font
+Line 41 ERROR: Undefined symbol
+00000044  203C 004DBD16             41      move.l  #SET_FONT_PROPERTIES_TASK, d0
+Line 42 ERROR: Undefined symbol
+0000004A  223C 004DBD16             42      move.l  #STATS_FONT_COLOR, d1
+Line 43 ERROR: Undefined symbol
+00000050  243C 004DBD16             43      move.l  #STATS_INNER_FONT_STYLE, d2
+00000056  4E4F                      44      trap    #15
+00000058                            45      ; Display Total Notes String
+Line 46 ERROR: Undefined symbol
+00000058  203C 004DBD16             46      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+0000005E  43F9 00000552             47      lea     TotalNotesString, a1
+Line 48 ERROR: Invalid syntax
+00000064                            48      move.l  #(STATS_INNER_TEXT_X+STATS_INNER_TEXT_PADDING), d1
+Line 49 ERROR: Invalid syntax
+00000064                            49      move.l  #(SCREEN_HEIGHT/2-(STATS_OUTER_BOX_HEIGHT/2)+STATS_BOXES_TOP_PADDING+STATS_INNER_TEXT_TOP_PAD), d2
+00000064  4E4F                      50      trap    #15
+00000066                            51      ; Display Notes Hit String
+Line 52 ERROR: Undefined symbol
+00000066  203C 004DBD16             52      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+0000006C  43F9 0000055E             53      lea     NotesHitString, a1
+Line 54 ERROR: Invalid syntax
+00000072                            54      move.l  #(STATS_INNER_TEXT_X+STATS_INNER_TEXT_PADDING), d1
+Line 55 ERROR: Invalid syntax
+00000072                            55      move.l  #(SCREEN_HEIGHT/2-(STATS_OUTER_BOX_HEIGHT/2)+STATS_BOXES_TOP_PADDING+STATS_INNER_TEXT_LINE_SIZE+STATS_INNER_TEXT_TOP_PAD), d2
+00000072  4E4F                      56      trap    #15
+00000074                            57      ; Display Notes Missed String
+Line 58 ERROR: Undefined symbol
+00000074  203C 004DBD16             58      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+0000007A  43F9 00000568             59      lea     NotesMIssedString, a1
+Line 60 ERROR: Invalid syntax
+00000080                            60      move.l  #(STATS_INNER_TEXT_X+STATS_INNER_TEXT_PADDING), d1
+Line 61 ERROR: Invalid syntax
+00000080                            61      move.l  #(SCREEN_HEIGHT/2-(STATS_OUTER_BOX_HEIGHT/2)+STATS_BOXES_TOP_PADDING+STATS_INNER_TEXT_LINE_SIZE*2+STATS_INNER_TEXT_TOP_PAD), d2
+00000080  4E4F                      62      trap    #15
+00000082                            63      ; Display Best Combo String
+Line 64 ERROR: Undefined symbol
+00000082  203C 004DBD16             64      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+00000088  43F9 00000575             65      lea     BestComboString, a1
+Line 66 ERROR: Invalid syntax
+0000008E                            66      move.l  #(STATS_INNER_TEXT_X+STATS_INNER_TEXT_PADDING), d1
+Line 67 ERROR: Invalid syntax
+0000008E                            67      move.l  #(SCREEN_HEIGHT/2-(STATS_OUTER_BOX_HEIGHT/2)+STATS_BOXES_TOP_PADDING+STATS_INNER_TEXT_LINE_SIZE*3+STATS_INNER_TEXT_TOP_PAD), d2
+0000008E  4E4F                      68      trap    #15
+00000090                            69      ; Display Overstrums String
+Line 70 ERROR: Undefined symbol
+00000090  203C 004DBD16             70      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+00000096  43F9 00000580             71      lea     OverstrumsString, a1
+Line 72 ERROR: Invalid syntax
+0000009C                            72      move.l  #(STATS_INNER_TEXT_X+STATS_INNER_TEXT_PADDING), d1
+Line 73 ERROR: Invalid syntax
+0000009C                            73      move.l  #(SCREEN_HEIGHT/2-(STATS_OUTER_BOX_HEIGHT/2)+STATS_BOXES_TOP_PADDING+STATS_INNER_TEXT_LINE_SIZE*4+STATS_INNER_TEXT_TOP_PAD), d2
+0000009C  4E4F                      74      trap    #15
+0000009E                            75      
+0000009E                            76      ; Display Stat information ------------------------------------------------
+Line 77 ERROR: Undefined symbol
+0000009E  203C 004DBD16             77      move.l  #SET_CURSOR_TASK, d0
+Line 78 ERROR: Invalid syntax
+000000A4                            78      move.w  #((STATS_INNER_NUMBER_Y<<8)+STATS_INNER_NUMBER_X), d1
+000000A4  4E4F                      79      trap    #15
+Line 80 ERROR: Undefined symbol
+000000A6  203C 004DBD16             80      move.l  #PRINT_SIGNED_NUMBER_TASK, d0
+000000AC  2239 0000053E             81      move.l  (EndTotalNotes), d1
+000000B2  7403                      82      move.l  #3, d2
+000000B4  4E4F                      83      trap    #15
+000000B6                            84      
+Line 85 ERROR: Undefined symbol
+000000B6  203C 004DBD16             85      move.l  #SET_CURSOR_TASK, d0
+Line 86 ERROR: Invalid syntax
+000000BC                            86      move.w  #((STATS_INNER_NUMBER_Y<<8)+STATS_INNER_NUMBER_X+STATS_INNER_NUMBER_Y_OFFSET), d1
+000000BC  4E4F                      87      trap    #15
+Line 88 ERROR: Undefined symbol
+000000BE  203C 004DBD16             88      move.l  #PRINT_SIGNED_NUMBER_TASK, d0
+000000C4  2239 00000542             89      move.l  (EndNotesHit), d1
+000000CA  7403                      90      move.l  #3, d2
+000000CC  4E4F                      91      trap    #15
+000000CE                            92      
+Line 93 ERROR: Undefined symbol
+000000CE  203C 004DBD16             93      move.l  #SET_CURSOR_TASK, d0
+Line 94 ERROR: Invalid syntax
+000000D4                            94      move.w  #((STATS_INNER_NUMBER_Y<<8)+STATS_INNER_NUMBER_X+STATS_INNER_NUMBER_Y_OFFSET*2), d1
+000000D4  4E4F                      95      trap    #15
+Line 96 ERROR: Undefined symbol
+000000D6  203C 004DBD16             96      move.l  #PRINT_SIGNED_NUMBER_TASK, d0
+000000DC  2239 00000546             97      move.l  (EndNotesMissed), d1
+000000E2  7403                      98      move.l  #3, d2
+000000E4  4E4F                      99      trap    #15
+000000E6                           100      
+Line 101 ERROR: Undefined symbol
+000000E6  203C 004DBD16            101      move.l  #SET_CURSOR_TASK, d0
+Line 102 ERROR: Invalid syntax
+000000EC                           102      move.w  #((STATS_INNER_NUMBER_Y<<8)+STATS_INNER_NUMBER_X+STATS_INNER_NUMBER_Y_OFFSET*3), d1
+000000EC  4E4F                     103      trap    #15
+Line 104 ERROR: Undefined symbol
+000000EE  203C 004DBD16            104      move.l  #PRINT_SIGNED_NUMBER_TASK, d0
+000000F4  2239 0000054A            105      move.l  (EndBestCombo), d1
+000000FA  7403                     106      move.l  #3, d2
+000000FC  4E4F                     107      trap    #15
+000000FE                           108      
+Line 109 ERROR: Undefined symbol
+000000FE  203C 004DBD16            109      move.l  #SET_CURSOR_TASK, d0
+Line 110 ERROR: Invalid syntax
+00000104                           110      move.w  #((STATS_INNER_NUMBER_Y<<8)+STATS_INNER_NUMBER_X+STATS_INNER_NUMBER_Y_OFFSET*4), d1
+00000104  4E4F                     111      trap    #15
+Line 112 ERROR: Undefined symbol
+00000106  203C 004DBD16            112      move.l  #PRINT_SIGNED_NUMBER_TASK, d0
+0000010C  2239 0000054E            113      move.l  (EndOverstrums), d1
+00000112  7403                     114      move.l  #3, d2
+00000114  4E4F                     115      trap    #15
+00000116                           116      
+00000116                           117      ; Display End Song options ------------------------------------------------
+Line 118 ERROR: Undefined symbol
+00000116  203C 004DBD16            118      move.l  #SET_PEN_FILL_COLOR_TASK, d0
+Line 119 ERROR: Undefined symbol
+0000011C  223C 004DBD16            119      move.l  #WHITE, d1
+00000122  4E4F                     120      trap    #15
+Line 121 ERROR: Undefined symbol
+00000124  203C 004DBD16            121      move.l  #SET_FONT_PROPERTIES_TASK, d0
+Line 122 ERROR: Undefined symbol
+0000012A  223C 004DBD16            122      move.l  #STATS_FONT_COLOR, d1
+Line 123 ERROR: Undefined symbol
+00000130  243C 004DBD16            123      move.l  #STATS_OUTER_FONT_STYLE, d2
+00000136  4E4F                     124      trap    #15
+00000138                           125      ; Display Replay String
+Line 126 ERROR: Undefined symbol
+00000138  203C 004DBD16            126      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+0000013E  43F9 000005AF            127      lea     ReplayString, a1
+Line 128 ERROR: Undefined symbol
+00000144  223C 004DBD16            128      move.l  #(STATS_OUTER_TEXT_X), d1
+Line 129 ERROR: Undefined symbol
+0000014A  243C 004DBD16            129      move.l  #(STATS_OUTER_TEXT_Y), d2
+00000150  4E4F                     130      trap    #15
+00000152                           131      ; Display Level Select String
+Line 132 ERROR: Undefined symbol
+00000152  203C 004DBD16            132      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+00000158  43F9 000005B9            133      lea     LevelSelectString, a1
+Line 134 ERROR: Invalid syntax
+0000015E                           134      move.l  #(STATS_OUTER_TEXT_X+80), d1
+Line 135 ERROR: Undefined symbol
+0000015E  243C 004DBD16            135      move.l  #(STATS_OUTER_TEXT_Y), d2
+00000164  4E4F                     136      trap    #15
+00000166                           137      ; Display Exit game String
+Line 138 ERROR: Undefined symbol
+00000166  203C 004DBD16            138      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+0000016C  43F9 000005C8            139      lea     ExitGameString, a1
+Line 140 ERROR: Invalid syntax
+00000172                           140      move.l  #(STATS_OUTER_TEXT_X+200), d1
+Line 141 ERROR: Undefined symbol
+00000172  243C 004DBD16            141      move.l  #(STATS_OUTER_TEXT_Y), d2
+00000178  4E4F                     142      trap    #15
+0000017A                           143      
+0000017A                           144      ; Display completion percent and high score message -----------------------
+0000017A  7600                     145      moveq.l #0, d3
+0000017C                           146      
+0000017C  2039 00000542            147      move.l  (EndNotesHit), d0
+00000182  2239 0000053E            148      move.l  (EndTotalNotes), d1
+00000188                           149      
+00000188                           150      ; (Notes hit * 100) / Total notes
+00000188  C0FC 0064                151      mulu    #100, d0
+0000018C  80C1                     152      divu    d1, d0                      ; Percentage of song complete
+0000018E                           153      
+0000018E                           154      ; Get the ones place
+0000018E  80FC 000A                155      divu    #10, d0
+00000192  4840                     156      swap    d0
+00000194  3200                     157      move.w  d0, d1                          ; Ones place -> d1
+00000196  303C 0000                158      move.w  #0, d0
+0000019A  4840                     159      swap    d0
+0000019C                           160  
+0000019C                           161      ; Get the Hundreds and tens place
+0000019C  80FC 000A                162      divu    #10, d0
+000001A0  3600                     163      move.w  d0, d3                          ; Hundreds place -> d3
+000001A2  4840                     164      swap    d0
+000001A4  3400                     165      move.w  d0, d2                          ; Tens place -> d2
+000001A6                           166      
+000001A6                           167      
+000001A6                           168      ; Create percentage value string
+000001A6  41F9 0000059D            169      lea     ReportCompletionString, a0
+Line 170 ERROR: Undefined symbol
+000001AC  D1FC 004DBD16            170      add.l   #COMPLETION_PERCENT_OFFSET, a0
+000001B2                           171      
+Line 172 ERROR: Undefined symbol
+000001B2  0683 004DBD16            172      add.l   #START_OF_ASCII_NUMBERS, d3
+000001B8  10C3                     173      move.b  d3, (a0)+                       ; Push hundreds place to string
+Line 174 ERROR: Undefined symbol
+000001BA  0682 004DBD16            174      add.l   #START_OF_ASCII_NUMBERS, d2
+000001C0  10C2                     175      move.b  d2, (a0)+                       ; Push tens place to string
+Line 176 ERROR: Undefined symbol
+000001C2  0681 004DBD16            176      add.l   #START_OF_ASCII_NUMBERS, d1
+000001C8  10C1                     177      move.b  d1, (a0)+                       ; Push ones place to string
+000001CA                           178      
+Line 179 ERROR: Undefined symbol
+000001CA  203C 004DBD16            179      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+000001D0  43F9 0000059D            180      lea     ReportCompletionString, a1
+Line 181 ERROR: Undefined symbol
+000001D6  223C 004DBD16            181      move.l  #COMPLETION_TEXT_X, d1
+Line 182 ERROR: Undefined symbol
+000001DC  243C 004DBD16            182      move.l  #COMPLETION_TEXT_Y, d2
+000001E2  4E4F                     183      trap    #15
+000001E4                           184      
+Line 185 ERROR: Undefined symbol
+000001E4  4EB9 004DBD16            185      jsr     SAVE_SONG_INFORMATION
+000001EA                           186      
+Line 187 ERROR: Undefined symbol
+000001EA  0CB9 00000001 005455B8   187      cmp.l   #1, (HighscoreAchieved)
+000001F4  6600 00A2                188      bne     SKIP_DISPLAY_HIGHSCORE_MESSAGE
+000001F8                           189      
+Line 190 ERROR: Undefined symbol
+000001F8  203C 004DBD16            190      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+000001FE  43F9 0000058B            191      lea     HighScoreString, a1
+Line 192 ERROR: Undefined symbol
+00000204  223C 004DBD16            192      move.l  #HIGHSCORE_TEXT_X, d1
+Line 193 ERROR: Undefined symbol
+0000020A  243C 004DBD16            193      move.l  #HIGHSCORE_TEXT_Y, d2
+00000210  4E4F                     194      trap    #15
+00000212                           195      
+Line 196 ERROR: Symbol value differs between first and second pass
+00000212                           196  SKIP_DISPLAY_HIGHSCORE_MESSAGE
+00000212                           197      ; Reset fill color
+Line 198 ERROR: Undefined symbol
+00000212  203C 004DBD16            198      move.l  #SET_PEN_FILL_COLOR_TASK, d0
+00000218  7200                     199      move.l  #0, d1
+0000021A  4E4F                     200      trap    #15
+0000021C                           201      
+0000021C                           202      
+0000021C  4EB9 0000032A            203      jsr     RESET_LEVEL_DATA
+00000222                           204      
+00000222                           205      ; Wait for a small amount to prevent clicking an option right after play
+Line 206 ERROR: Undefined symbol
+00000222  203C 004DBD16            206      move.l  #DELAY_TASK, d0
+00000228  7219                     207      move.l  #25, d1
+0000022A  4E4F                     208      trap    #15
+0000022C                           209      
+0000022C  4E75                     210      rts
+0000022E                           211      
+0000022E                           212      ; Loop handing actions during stat report
+Line 213 ERROR: Symbol value differs between first and second pass
+0000022E                           213  END_GAME_LOOP:
+0000022E                           214      ; Get Inputs
+Line 215 ERROR: Undefined symbol
+0000022E  7016                     215      moveq.l #KEY_INPUT_TASK, d0
+Line 216 ERROR: Undefined symbol
+00000230  223C 004DBD16            216      move.l  #LEVEL_TARGET_INPUTS, d1
+00000236  4E4F                     217      trap    #15
+00000238                           218      
+00000238  4EB9 000002C6            219      jsr     PROCESS_END_INPUTS
+0000023E                           220  
+0000023E  4E75                     221      rts
+00000240                           222      
+00000240                           223      
+Line 224 ERROR: Symbol value differs between first and second pass
+00000240                           224  PROCESS_END_INPUTS:
+Line 225 ERROR: Undefined symbol
+00000240  2039 004DBD16            225      move.l  (HeldInputs), d0
+Line 226 ERROR: Undefined symbol
+00000246  23C1 005455E0            226      move.l  d1, (HeldInputs)                ; Add all bits currently pressed to held inputs flag
+0000024C  4680                     227      not.l   d0                              ; NOT all bits 
+0000024E  C280                     228      and.l   d0, d1                          ; Remove all inputs held down creating OnPress behavior
+00000250                           229  
+00000250                           230      
+Line 231 ERROR: Undefined symbol
+00000250  0801 0016                231      btst.l  #ONE_PRESSED_BIT_OFFSET, d1       ; Compares '1' bit with 0
+00000254  6700 00A0                232      beq     ONE_NOT_PRESSED_END               ; Branch if '1' not pressed '1' bit == 0
+00000258                           233     
+Line 234 ERROR: Undefined symbol
+00000258  23FC 00000001 005455B8   234      move.l  #1, (RetrySong)
+00000262                           235      
+00000262                           236      ; Play button sound
+Line 237 ERROR: Undefined symbol
+00000262  203C 004DBD16            237      move.l  #PLAY_SOUND_DIRECTX_TASK, d0
+Line 238 ERROR: Undefined symbol
+00000268  43F9 004DBD16            238      lea     CassetteTapeRestart, a1
+0000026E  4E4F                     239      trap    #15
+00000270                           240      
+Line 241 ERROR: Symbol value differs between first and second pass
+00000270                           241  ONE_NOT_PRESSED_END:
+Line 242 ERROR: Undefined symbol
+00000270  0801 0016                242      btst.l  #TWO_PRESSED_BIT_OFFSET, d1       ; Compares '2' bit with 0
+00000274  6700 00A0                243      beq     TWO_NOT_PRESSED_END               ; Branch if '2' not pressed '2' bit == 0
+00000278                           244  
+Line 245 ERROR: Undefined symbol
+00000278  23FC 00000001 005455B8   245      move.l  #1, (LevelSelect)
+00000282                           246      
+00000282                           247      ; Play button sound
+Line 248 ERROR: Undefined symbol
+00000282  203C 004DBD16            248      move.l  #PLAY_SOUND_DIRECTX_TASK, d0
+Line 249 ERROR: Undefined symbol
+00000288  43F9 004DBD16            249      lea     CassetteTapeEject, a1
+0000028E  4E4F                     250      trap    #15
+00000290                           251  
+Line 252 ERROR: Symbol value differs between first and second pass
+00000290                           252  TWO_NOT_PRESSED_END:
+Line 253 ERROR: Undefined symbol
+00000290  0801 0016                253      btst.l  #THREE_PRESSED_BIT_OFFSET, d1       ; Compares '3' bit with 0
+00000294  6700 0092                254      beq     THREE_NOT_PRESSED_END               ; Branch if '3' not pressed '3' bit == 0
+00000298                           255      
+Line 256 ERROR: Undefined symbol
+00000298  23FC 00000001 005455B8   256      move.l  #1, (ExitGame)
+000002A2                           257  
+Line 258 ERROR: Symbol value differs between first and second pass
+000002A2                           258  THREE_NOT_PRESSED_END:
+000002A2  4E75                     259      rts
+000002A4                           260      
+000002A4                           261      
+000002A4                           262  ; Resets all variables to be ready for use for retrys and back to song selection
+Line 263 ERROR: Symbol value differs between first and second pass
+000002A4                           263  RESET_LEVEL_DATA:
+Line 264 ERROR: Undefined symbol
+000002A4  23FC 00000000 005455B8   264      move.l  #0, (TimeElapsed)
+000002AE                           265  
+Line 266 ERROR: Undefined symbol
+000002AE  23FC 00000000 005455B8   266      move.l  #0, (RetrySong)
+Line 267 ERROR: Undefined symbol
+000002B8  23FC 00000000 005455B8   267      move.l  #0, (LevelSelect)
+Line 268 ERROR: Undefined symbol
+000002C2  23FC 00000000 005455B8   268      move.l  #0, (ExitGame)
+000002CC                           269                                             
+Line 270 ERROR: Undefined symbol
+000002CC  13FC 0000 005455B8       270      move.b  #0, (ReadyForGame)
+000002D4                           271                              
+Line 272 ERROR: Undefined symbol
+000002D4  23FC 004DBD16 005455B8   272      move.l  #SongLane1Timings, (CurrentLane1Timing)
+Line 273 ERROR: Undefined symbol
+000002DE  23FC 004DBD16 005455B8   273      move.l  #SongLane2Timings, (CurrentLane2Timing)
+Line 274 ERROR: Undefined symbol
+000002E8  23FC 004DBD16 005455B8   274      move.l  #SongLane3Timings, (CurrentLane3Timing)
+Line 275 ERROR: Undefined symbol
+000002F2  23FC 004DBD16 005455B8   275      move.l  #SongLane4Timings, (CurrentLane4Timing)
+Line 276 ERROR: Undefined symbol
+000002FC  23FC 004DBD16 005455B8   276      move.l  #SongLane5Timings, (CurrentLane5Timing) 
+00000306                           277      
+Line 278 ERROR: Undefined symbol
+00000306  41F9 004DBD16            278      lea     SongLaneTimingTable, a0
+0000030C  5888                     279      add.l   #4, a0
+0000030E                           280      ; Reset to begining of timing table
+Line 281 ERROR: Undefined symbol
+0000030E  20BC 004DBD16            281      move.l  #SongLane1Timings, (a0)
+00000314  5888                     282      add.l   #4, a0
+Line 283 ERROR: Undefined symbol
+00000316  20BC 004DBD16            283      move.l  #SongLane2Timings, (a0)
+0000031C  5888                     284      add.l   #4, a0
+Line 285 ERROR: Undefined symbol
+0000031E  20BC 004DBD16            285      move.l  #SongLane3Timings, (a0)
+00000324  5888                     286      add.l   #4, a0
+Line 287 ERROR: Undefined symbol
+00000326  20BC 004DBD16            287      move.l  #SongLane4Timings, (a0)
+0000032C  5888                     288      add.l   #4, a0
+Line 289 ERROR: Undefined symbol
+0000032E  20BC 004DBD16            289      move.l  #SongLane5Timings, (a0)
+00000334                           290  
+00000334                           291                       
+Line 292 ERROR: Undefined symbol
+00000334  13FC 0000 005455B8       292      move.b  #0, (SongFinished)
+0000033C                           293                              
+0000033C                           294  
+Line 295 ERROR: Undefined symbol
+0000033C  23FC 004DBD16 005455B8   295      move.l  #DECENT_COLOR, (PlayAreaBoarderColor)
+00000346                           296      
+Line 297 ERROR: Undefined symbol
+00000346  23FC 00000000 005455B8   297      move.l  #0, (OldestLane1NoteOffset)
+Line 298 ERROR: Undefined symbol
+00000350  23FC 004DBD16 005455B8   298      move.l  #Lane1NotePosTable, (Lane1CurrentNote)
+Line 299 ERROR: Undefined symbol
+0000035A  23FC FFFFFFFF 005455B8   299      move.l  #-1, (Lane1CurrentNoteIndex)
+00000364                           300      
+Line 301 ERROR: Undefined symbol
+00000364  23FC 00000000 005455B8   301      move.l  #0, (OldestLane2NoteOffset)
+Line 302 ERROR: Undefined symbol
+0000036E  23FC 004DBD16 005455B8   302      move.l  #Lane2NotePosTable, (Lane2CurrentNote)
+Line 303 ERROR: Undefined symbol
+00000378  23FC FFFFFFFF 005455B8   303      move.l  #-1, (Lane2CurrentNoteIndex)
+00000382                           304  
+00000382                           305  
+Line 306 ERROR: Undefined symbol
+00000382  23FC 00000000 005455B8   306      move.l  #0, (OldestLane3NoteOffset)
+Line 307 ERROR: Undefined symbol
+0000038C  23FC 004DBD16 005455B8   307      move.l  #Lane3NotePosTable, (Lane3CurrentNote)
+Line 308 ERROR: Undefined symbol
+00000396  23FC FFFFFFFF 005455B8   308      move.l  #-1, (Lane3CurrentNoteIndex)
+000003A0                           309  
+000003A0                           310  
+Line 311 ERROR: Undefined symbol
+000003A0  23FC 00000000 005455B8   311      move.l  #0, (OldestLane4NoteOffset)
+Line 312 ERROR: Undefined symbol
+000003AA  23FC 004DBD16 005455B8   312      move.l  #Lane4NotePosTable, (Lane4CurrentNote)
+Line 313 ERROR: Undefined symbol
+000003B4  23FC FFFFFFFF 005455B8   313      move.l  #-1, (Lane4CurrentNoteIndex)
+000003BE                           314  
+Line 315 ERROR: Undefined symbol
+000003BE  23FC 00000000 005455B8   315      move.l  #0, (OldestLane5NoteOffset)
+Line 316 ERROR: Undefined symbol
+000003C8  23FC 004DBD16 005455B8   316      move.l  #Lane5NotePosTable, (Lane5CurrentNote)
+Line 317 ERROR: Undefined symbol
+000003D2  23FC FFFFFFFF 005455B8   317      move.l  #-1, (Lane5CurrentNoteIndex)
+000003DC                           318      
+Line 319 ERROR: Undefined symbol
+000003DC  23FC 00000000 005455B8   319      move.l  #0, (PerformancePositiveModifier)
+Line 320 ERROR: Undefined symbol
+000003E6  23FC 00000000 005455B8   320      move.l  #0, (PerformanceNegativeModifier)
+Line 321 ERROR: Undefined symbol
+000003F0  23FC 004DBD16 005455B8   321      move.l  #PERFORMANCE_DECENT, (CurrentPerformance)
+Line 322 ERROR: Invalid syntax
+000003FA                           322      move.l  #(PERFORMANCE_STATE_SCORE_SIZE*PERFORMANCE_DECENT), (PerformanceScore)
+000003FA                           323      
+Line 324 ERROR: Undefined symbol
+000003FA  23FC 00000000 005455B8   324      move.l  #0, (HighscoreAchieved)
+00000404                           325      
+00000404  23FC 00000000 0000053E   326      move.l  #0, (EndTotalNotes)
+0000040E  23FC 00000000 00000542   327      move.l  #0, (EndNotesHit)
+00000418  23FC 00000000 00000546   328      move.l  #0, (EndNotesMissed)
+00000422  23FC 00000000 0000054A   329      move.l  #0, (EndBestCombo)
+0000042C  23FC 00000000 0000054E   330      move.l  #0, (EndOverstrums)
+00000436                           331      
+00000436                           332      ; reset cursor
+00000436  700B                     333      move.l  #11, d0
+00000438  7200                     334      move.l  #0, d1
+0000043A  4E4F                     335      trap    #15
+0000043C                           336      
+0000043C                           337      ; Reset Note positions
+0000043C  7000                     338      move.l  #0, d0
+Line 339 ERROR: Symbol value differs between first and second pass
+0000043E                           339  NEXT_NOTE_POSITION_TABLE:    
+Line 340 ERROR: Undefined symbol
+0000043E  41F9 004DBD16            340      lea     LanePosTables, a0
+00000444  41F0 0000                341      lea     (a0, d0), a0
+00000448  2050                     342      move.l  (a0), a0
+0000044A                           343      
+Line 344 ERROR: Undefined symbol
+0000044A  43F9 004DBD16            344      lea     OldestLaneNotes, a1
+00000450  43F1 0000                345      lea     (a1, d0), a1
+00000454  2251                     346      move.l  (a1), a1
+Line 347 ERROR: Symbol value differs between first and second pass
+00000456                           347  RESET_NOTE_POSITIONS:
+Line 348 ERROR: Invalid syntax
+00000456                           348      move.l  #(NOTE_SPAWN_Y<<FIXED_POINT_BITS), (a0)+
+00000456  B1C9                     349      cmp.l   a1, a0
+00000458  6D00 008C                350      blt     RESET_NOTE_POSITIONS
+0000045C  5880                     351      add.l   #4, d0
+0000045E  B0BC 00000010            352      cmp.l   #16, d0
+00000464  6F68                     353      ble     NEXT_NOTE_POSITION_TABLE
+00000466                           354      
+00000466                           355      
+00000466                           356      ; Reset note spawn timings
+00000466  7004                     357      move.l  #4, d0
+Line 358 ERROR: Symbol value differs between first and second pass
+00000468                           358  NEXT_LANE_TIMING_TABLE:    
+Line 359 ERROR: Undefined symbol
+00000468  41F9 004DBD16            359      lea     SongLaneTimingTable, a0
+0000046E  41F0 0000                360      lea     (a0, d0), a0
+00000472  2050                     361      move.l  (a0), a0
+00000474                           362      
+Line 363 ERROR: Undefined symbol
+00000474  43F9 004DBD16            363      lea     CurrentLaneTimings, a1
+0000047A  43F1 0000                364      lea     (a1, d0), a1
+0000047E  5989                     365      sub.l   #4, a1
+00000480  2251                     366      move.l  (a1), a1
+Line 367 ERROR: Symbol value differs between first and second pass
+00000482                           367  RESET_LANE_TIMING:
+00000482  10FC 00FF                368      move.b  #$FF, (a0)+
+00000486  B1C9                     369      cmp.l   a1, a0
+00000488  6D00 008C                370      blt     RESET_LANE_TIMING    
+0000048C  5880                     371      add.l   #4, d0
+0000048E  B0BC 00000014            372      cmp.l   #20, d0
+00000494  6F66                     373      ble     NEXT_LANE_TIMING_TABLE
+00000496                           374  
+Line 375 ERROR: Undefined symbol
+00000496  23FC 00000000 005455B8   375      move.l  #0, (CurrentCombo)
+000004A0                           376  
+Line 377 ERROR: Invalid syntax
+000004A0                           377      move.l  #(PROGRESS_BAR_BOTTOM_Y<<FIXED_POINT_BITS), (ProgressBarFillHeightPos)
+000004A0                           378  
+000004A0                           379  
+000004A0  4E75                     380      rts
+000004A2                           381  
+000004A2                           382      
+Line 383 ERROR: Symbol value differs between first and second pass
+000004A2=                          383  EndTotalNotes           dc.l 0
+Line 384 ERROR: Symbol value differs between first and second pass
+000004A2=                          384  EndNotesHit             dc.l 0
+Line 385 ERROR: Symbol value differs between first and second pass
+000004A2=                          385  EndNotesMissed          dc.l 0
+Line 386 ERROR: Symbol value differs between first and second pass
+000004A2=                          386  EndBestCombo            dc.l 0
+Line 387 ERROR: Symbol value differs between first and second pass
+000004A2=                          387  EndOverstrums           dc.l 0
+000004A2                           388      
+Line 389 ERROR: Symbol value differs between first and second pass
+000004A2= 54 6F 74 61 6C 20 ...    389  TotalNotesString        dc.b 'Total Notes',0
+Line 390 ERROR: Symbol value differs between first and second pass
+000004AD= 4E 6F 74 65 73 20 ...    390  NotesHitString          dc.b 'Notes Hit',0
+Line 391 ERROR: Symbol value differs between first and second pass
+000004B6= 4E 6F 74 65 73 20 ...    391  NotesMissedString       dc.b 'Notes Missed',0
+Line 392 ERROR: Symbol value differs between first and second pass
+000004C2= 42 65 73 74 20 43 ...    392  BestComboString         dc.b 'Best Combo',0
+Line 393 ERROR: Symbol value differs between first and second pass
+000004CC= 4F 76 65 72 73 74 ...    393  OverstrumsString        dc.b 'Overstrums',0
+Line 394 ERROR: Symbol value differs between first and second pass
+000004D6= 4E 45 57 20 48 49 ...    394  HighScoreString         dc.b 'NEW HIGH SCORE!!!',0
+Line 395 ERROR: Symbol value differs between first and second pass
+000004E7= 43 6F 6D 70 6C 65 ...    395  ReportCompletionString  dc.b 'Completion -    %',0
+Line 396 ERROR: Symbol value differs between first and second pass
+000004F8= 31 3A 20 52 65 70 ...    396  ReplayString            dc.b '1: Replay',0
+Line 397 ERROR: Symbol value differs between first and second pass
+00000501= 32 3A 20 53 6F 6E ...    397  LevelSelectString       dc.b '2: Song Select',0
+Line 398 ERROR: Symbol value differs between first and second pass
+0000050F= 33 3A 20 45 78 69 ...    398  ExitGameString          dc.b '3: Exit Game',0
+0000051C                           399                          ds.w 0
+0000051C                           400  
+0000051C                           401  
+0000051C                           402  
+0000051C                           403  
+0000051C                           404  
+0000051C                           405  
+0000051C                           406  
+0000051C                           407  
+0000051C                           408  
+0000051C                           409  
+0000051C                           410  
+0000051C                           411  
+0000051C                           412  
+0000051C                           413  
+0000051C                           414  
+0000051C                           415  
+0000051C                           416  
+0000051C                           417  
+0000051C                           418  
+0000051C                           419  
+Line 420 WARNING: END directive missing, starting address not set
+
+161 errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+BESTCOMBOSTRING     575
+ENDBESTCOMBO        54A
+ENDNOTESHIT         542
+ENDNOTESMISSED      546
+ENDOVERSTRUMS       54E
+ENDTOTALNOTES       53E
+END_GAME_LOOP       2B4
+EXITGAMESTRING      5C8
+HIGHSCORESTRING     58B
+LEVELSELECTSTRING   5B9
+NEXT_LANE_TIMING_TABLE  4FC
+NEXT_NOTE_POSITION_TABLE  4CE
+NOTESHITSTRING      55E
+NOTESMISSEDSTRING   568
+ONE_NOT_PRESSED_END  2F6
+OVERSTRUMSSTRING    580
+PROCESS_END_INPUTS  2C6
+REPLAYSTRING        5AF
+REPORTCOMPLETIONSTRING  59D
+RESET_LANE_TIMING   516
+RESET_LEVEL_DATA    32A
+RESET_NOTE_POSITIONS  4E6
+SKIP_DISPLAY_HIGHSCORE_MESSAGE  298
+SONG_ENDING_SEQUENCE  0
+THREE_NOT_PRESSED_END  328
+TOTALNOTESSTRING    552
+TWO_NOT_PRESSED_END  316

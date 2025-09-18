@@ -1,0 +1,267 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 6/20/2025 1:57:05 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : Title Game Loop
+00000000                             3  * Written by : Albert Castrejon
+00000000                             4  * Date       : 6/6/25
+00000000                             5  * Description: Runs the game loop that contains the title screen and picking a song
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  
+00000000                             8  TITLE_LOOP:
+00000000                             9      ; poll for 1, 2, 3, 4 inputs
+Line 10 ERROR: Undefined symbol
+00000000  7016                      10      moveq.l #KEY_INPUT_TASK, d0
+Line 11 ERROR: Undefined symbol
+00000002  223C 004DBD16             11      move.l  #LEVEL_TARGET_INPUTS, d1
+00000008  4E4F                      12      trap    #15
+0000000A                            13      
+0000000A                            14      
+0000000A  4EB9 00000022             15      jsr PROCESS_TITLE_INPUTS
+00000010                            16      
+00000010                            17      ; Input d7 - Currently selected song
+Line 18 ERROR: Undefined symbol
+00000010  2E39 004DBD16             18      move.l  (CurrentChoiceIndex), d7
+00000016  4EB9 000000B4             19      jsr REFRESH_TITLE_SCREEN
+0000001C                            20      
+0000001C                            21      ;Update Screen
+Line 22 ERROR: Undefined symbol
+0000001C  7016                      22      moveq.l #PAINT_BUFFER_SCREEN_TASK, d0
+0000001E  4E4F                      23      trap    #15
+00000020                            24  
+00000020  4E75                      25      rts
+00000022                            26  
+00000022                            27  
+00000022                            28  
+00000022                            29  PROCESS_TITLE_INPUTS:
+Line 30 ERROR: Undefined symbol
+00000022  2039 004DBD16             30      move.l  (HeldInputs), d0
+Line 31 ERROR: Undefined symbol
+00000028  23C1 005455E0             31      move.l  d1, (HeldInputs)                ; Add all bits currently pressed to held inputs flag
+0000002E                            32      
+0000002E  4680                      33      not.l   d0                              ; NOT all bits 
+00000030  C280                      34      and.l   d0, d1                          ; Remove all inputs held down creating OnPress behavior
+00000032                            35                     
+00000032                            36  
+00000032                            37      ; Check for '1' pressed
+Line 38 ERROR: Undefined symbol
+00000032  0801 0016                 38      btst.l  #ONE_PRESSED_BIT_OFFSET, d1
+00000036  6700 0024                 39      beq     ONE_NOT_PRESSED_TITLE           ; Branch if '1' not pressed '1' bit == 0
+0000003A                            40      
+0000003A                            41      ; Check selected song index
+Line 42 ERROR: Undefined symbol
+0000003A  0CB9 00000000 005455B8    42      cmp.l   #0, (CurrentChoiceIndex)
+00000044  6700 0016                 43      beq     SKIP_DECREASE_CHOICE_INDEX      ; Branch and skip decrement if already at lowest index
+Line 44 ERROR: Undefined symbol
+00000048  59B9 005455B8             44      sub.l   #4, (CurrentChoiceIndex)
+0000004E                            45      
+0000004E                            46      ; Play button sound
+Line 47 ERROR: Undefined symbol
+0000004E  203C 004DBD16             47      move.l  #PLAY_SOUND_DIRECTX_TASK, d0
+Line 48 ERROR: Undefined symbol
+00000054  43F9 004DBD16             48      lea     CassetteTapeButton, a1
+0000005A  4E4F                      49      trap    #15
+0000005C                            50      
+0000005C                            51  SKIP_DECREASE_CHOICE_INDEX:
+0000005C                            52      
+0000005C                            53  ONE_NOT_PRESSED_TITLE:
+0000005C                            54      ; Check for '2' pressed
+Line 55 ERROR: Undefined symbol
+0000005C  0801 0016                 55      btst.l  #TWO_PRESSED_BIT_OFFSET, d1     
+00000060  6700 0018                 56      beq     TWO_NOT_PRESSED_TITLE           ; Branch and skip if '2' not pressed '2' bit == 0
+00000064                            57  
+Line 58 ERROR: Undefined symbol
+00000064  13FC 0001 005455CC        58      move.b  #1, (ReadyForGame)              ; Set the ready flag
+0000006C                            59      
+0000006C                            60      ; Play start sound
+Line 61 ERROR: Undefined symbol
+0000006C  203C 004DBD16             61      move.l  #PLAY_SOUND_DIRECTX_TASK, d0
+Line 62 ERROR: Undefined symbol
+00000072  43F9 004DBD16             62      lea     CassetteTapeStart, a1
+00000078  4E4F                      63      trap    #15
+0000007A                            64      
+0000007A                            65  TWO_NOT_PRESSED_TITLE:
+0000007A                            66      ; Check for '3' pressed
+Line 67 ERROR: Undefined symbol
+0000007A  0801 0016                 67      btst.l  #THREE_PRESSED_BIT_OFFSET, d1
+0000007E  6700 0024                 68      beq     THREE_NOT_PRESSED_TITLE         ; Branch if '3' not pressed '3' bit == 0
+00000082                            69  
+00000082                            70      ; Check selected song index
+Line 71 ERROR: Undefined symbol
+00000082  0CB9 004DBD16 005455B8    71      cmp.l   #MAX_SONGS_INDEX, (CurrentChoiceIndex)
+0000008C  6700 0016                 72      beq     SKIP_INCREASE_CHOICE_INDEX      ; Branch and skip increment if already at highest index
+Line 73 ERROR: Undefined symbol
+00000090  58B9 005455B8             73      add.l   #4, (CurrentChoiceIndex)
+00000096                            74      
+00000096                            75      ; Play button sound
+Line 76 ERROR: Undefined symbol
+00000096  203C 004DBD16             76      move.l  #PLAY_SOUND_DIRECTX_TASK, d0
+Line 77 ERROR: Undefined symbol
+0000009C  43F9 004DBD16             77      lea     CassetteTapeButton, a1
+000000A2  4E4F                      78      trap    #15
+000000A4                            79      
+000000A4                            80  SKIP_INCREASE_CHOICE_INDEX:    
+000000A4                            81      
+000000A4                            82  THREE_NOT_PRESSED_TITLE:
+000000A4                            83      ; Check for '4' pressed
+Line 84 ERROR: Undefined symbol
+000000A4  0801 0016                 84      btst.l  #FOUR_PRESSED_BIT_OFFSET, d1       
+000000A8  6700 0008                 85      beq     FOUR_NOT_PRESSED_TITLE          ; Branch and skip if '2' not pressed '2' bit == 0
+000000AC                            86      
+Line 87 ERROR: Undefined symbol
+000000AC  4EB9 004DBD16             87      jsr     DELETE_SONG_INFORMATION
+000000B2                            88      
+000000B2                            89  FOUR_NOT_PRESSED_TITLE:    
+000000B2                            90      
+000000B2  4E75                      91      rts
+000000B4                            92      
+000000B4                            93      
+000000B4                            94      ; Input d7 - Current song index in bytes
+000000B4                            95  REFRESH_TITLE_SCREEN:
+000000B4                            96      
+000000B4                            97      ; Get current song name
+Line 98 ERROR: Undefined symbol
+000000B4  41F9 004DBD16             98      lea     SongNames, a0
+000000BA  41F0 7000                 99      lea     (a0, d7), a0
+000000BE  2050                     100      move.l  (a0), a0                       
+000000C0                           101      
+000000C0                           102      ; Get current song file path
+Line 103 ERROR: Undefined symbol
+000000C0  43F9 004DBD16            103      lea     SongStrings, a1
+000000C6  43F1 7000                104      lea     (a1, d7), a1
+000000CA  2251                     105      move.l  (a1), a1                       
+000000CC                           106      
+000000CC                           107      ; Get current song sound file reference
+Line 108 ERROR: Undefined symbol
+000000CC  45F9 004DBD16            108      lea     SongSounds, a2
+000000D2  45F2 7000                109      lea     (a2, d7), a2
+000000D6  2452                     110      move.l  (a2), a2
+000000D8                           111      
+000000D8                           112      
+Line 113 ERROR: Undefined symbol
+000000D8  23C9 005455B8            113      move.l  a1, (ChosenSong)
+Line 114 ERROR: Undefined symbol
+000000DE  23CA 005455B8            114      move.l  a2, (ChosenSound)
+000000E4                           115      
+000000E4                           116      ; Update Screen based on current choice
+Line 117 ERROR: Undefined symbol
+000000E4  203C 004DBD16            117      move.l  #SET_PEN_FILL_COLOR_TASK, d0
+Line 118 ERROR: Undefined symbol
+000000EA  223C 004DBD16            118      move.l  #WHITE, d1
+000000F0  4E4F                     119      trap    #15
+000000F2                           120      
+Line 121 ERROR: Undefined symbol
+000000F2  203C 004DBD16            121      move.l  #SET_PEN_COLOR_TASK, d0
+Line 122 ERROR: Undefined symbol
+000000F8  223C 004DBD16            122      move.l  #WHITE, d1
+000000FE  4E4F                     123      trap    #15
+00000100                           124      
+Line 125 ERROR: Undefined symbol
+00000100  203C 004DBD16            125      move.l  #DRAW_RECT_TASK, d0
+Line 126 ERROR: Undefined symbol
+00000106  223C 004DBD16            126      move.l  #SONG_NAME_POS_X, d1
+Line 127 ERROR: Undefined symbol
+0000010C  243C 004DBD16            127      move.l  #SONG_NAME_POS_Y, d2
+Line 128 ERROR: Invalid syntax
+00000112                           128      move.l  #(SONG_NAME_POS_X+215), d3
+Line 129 ERROR: Invalid syntax
+00000112                           129      move.l  #(SONG_NAME_POS_Y+10), d4
+00000112  4E4F                     130      trap    #15                             ; Draw background
+00000114                           131      
+Line 132 ERROR: Undefined symbol
+00000114  203C 004DBD16            132      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+0000011A  2248                     133      move.l  a0, a1
+Line 134 ERROR: Undefined symbol
+0000011C  223C 004DBD16            134      move.l  #SONG_NAME_POS_X, d1
+Line 135 ERROR: Undefined symbol
+00000122  243C 004DBD16            135      move.l  #SONG_NAME_POS_Y, d2
+00000128  4E4F                     136      trap    #15                             ; Draw song name
+0000012A                           137      
+0000012A                           138      ; Get selected song index
+0000012A  2C07                     139      move.l  d7, d6
+0000012C  E48E                     140      lsr.l   #2, d6                          ; Byte based indexing
+0000012E                           141      
+0000012E                           142      ; Output (CompletionData) - Current data in the file
+Line 143 ERROR: Undefined symbol
+0000012E  4EB9 004DBD16            143      jsr     READ_SONG_INFORMATION
+Line 144 ERROR: Undefined symbol
+00000134  1039 004DBD16            144      move.b  (CompletionData), d0
+0000013A                           145      
+0000013A                           146      ; Get the ones place
+0000013A  80FC 000A                147      divu    #10, d0
+0000013E  4840                     148      swap    d0
+00000140  3200                     149      move.w  d0, d1                          ; Ones place -> d1
+00000142  303C 0000                150      move.w  #0, d0
+00000146  4840                     151      swap    d0
+00000148                           152  
+00000148                           153      ; Get the Hundreds and tens place
+00000148  80FC 000A                154      divu    #10, d0
+0000014C  3600                     155      move.w  d0, d3                          ; Hundreds place -> d3
+0000014E  4840                     156      swap    d0
+00000150  3400                     157      move.w  d0, d2                          ; Tens place -> d2
+00000152                           158      
+00000152                           159      
+00000152                           160      ; Create percentage value string
+00000152  41F9 00000198            161      lea     SongCompletionString, a0
+Line 162 ERROR: Undefined symbol
+00000158  0683 004DBD16            162      add.l   #START_OF_ASCII_NUMBERS, d3
+0000015E  10C3                     163      move.b  d3, (a0)+                       ; Push hundreds place to string
+Line 164 ERROR: Undefined symbol
+00000160  0682 004DBD16            164      add.l   #START_OF_ASCII_NUMBERS, d2
+00000166  10C2                     165      move.b  d2, (a0)+                       ; Push tens place to string
+Line 166 ERROR: Undefined symbol
+00000168  0681 004DBD16            166      add.l   #START_OF_ASCII_NUMBERS, d1
+0000016E  10C1                     167      move.b  d1, (a0)+                       ; Push ones place to string
+00000170                           168      
+00000170                           169      ; Update completion percent on screen based on current choice
+00000170                           170      
+Line 171 ERROR: Undefined symbol
+00000170  203C 004DBD16            171      move.l  #PRINT_STRING_PIXEL_POS_TASK, d0
+00000176  43F9 00000198            172      lea     SongCompletionString, a1
+Line 173 ERROR: Undefined symbol
+0000017C  223C 004DBD16            173      move.l  #PERCENT_POS_X, d1
+Line 174 ERROR: Undefined symbol
+00000182  243C 004DBD16            174      move.l  #PERCENT_POS_Y, d2
+00000188  4E4F                     175      trap    #15                             ; Draw String
+0000018A                           176  
+0000018A  4E75                     177      rts
+0000018C                           178  
+Line 179 ERROR: Symbol value differs between first and second pass
+0000018C= 20 20 20 25              179  SongCompletionString        dc.b    '   %',0
+00000190= 0000                     180                              dc.w    0       ; Padding
+00000192                           181  
+00000192                           182  
+00000192                           183  
+00000192                           184  
+00000192                           185  
+00000192                           186  
+00000192                           187  
+00000192                           188  
+00000192                           189  
+00000192                           190  
+00000192                           191  
+00000192                           192  
+00000192                           193  
+00000192                           194  
+00000192                           195  
+00000192                           196  
+Line 197 WARNING: END directive missing, starting address not set
+
+48 errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+FOUR_NOT_PRESSED_TITLE  B2
+ONE_NOT_PRESSED_TITLE  5C
+PROCESS_TITLE_INPUTS  22
+REFRESH_TITLE_SCREEN  B4
+SKIP_DECREASE_CHOICE_INDEX  5C
+SKIP_INCREASE_CHOICE_INDEX  A4
+SONGCOMPLETIONSTRING  198
+THREE_NOT_PRESSED_TITLE  A4
+TITLE_LOOP          0
+TWO_NOT_PRESSED_TITLE  7A

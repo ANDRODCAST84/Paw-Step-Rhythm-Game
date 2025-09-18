@@ -1,0 +1,301 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 6/4/2025 2:12:02 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : Seven Segment Display
+00000000                             3  * Written by : Albert Castrejon
+00000000                             4  * Date       : 6/3/25
+00000000                             5  * Description: Displays a two digit seven segment based number
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  
+Line 8 ERROR: Undefined symbol
+00000000                             8  TARGET_NUMBER_OFFSET    EQU BYTES_IN_ALL_REG+4
+00000000                             9  
+00000000                            10  * Draws two digit number
+00000000                            11  * Input Long-d2: Number to display
+00000000                            12  * Output       : Draws 7 segment number to screen with lines
+00000000                            13  * No Return
+00000000                            14  DRAW_TWO_DIGIT_NUMBER:
+Line 15 ERROR: Undefined symbol
+00000000                            15      movem.l ALL_REG, -(sp)
+00000000                            16   
+00000000                            17      
+Line 18 ERROR: Undefined symbol
+00000000  7016                      18      moveq.l #DRAW_RECT_TASK, d0
+Line 19 ERROR: Invalid syntax
+00000002                            19      move.l  #(SEGMENT_ONES_PLACE_POS_X-SEGMENT_PLACE_X_OFFSET-SEGMENT_BACKGROUND_PADDING), d1
+Line 20 ERROR: Invalid syntax
+00000002                            20      move.l  #(SEGMENT_ONES_PLACE_POS_Y-SEGMENT_BACKGROUND_PADDING), d2
+Line 21 ERROR: Invalid syntax
+00000002                            21      move.l  #(SEGMENT_ONES_PLACE_POS_X+SEGMENT_LENGTH+SEGMENT_BACKGROUND_PADDING), d3
+Line 22 ERROR: Invalid syntax
+00000002                            22      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH*2+SEGMENT_BACKGROUND_PADDING), d4
+00000002  4E4F                      23      trap    #15
+00000004                            24  
+00000004  7A00                      25      moveq.l #0, d5                      ; Clear d5 for place value offsets
+00000006  7C00                      26      moveq.l #0, d6                      ; Clear d6
+00000008  7E00                      27      moveq.l #0, d7                      ; and d7 for segment encodings
+0000000A                            28  
+Line 29 ERROR: Undefined symbol
+0000000A  7016                      29      moveq.l #SET_PEN_WIDTH_TASK, d0
+Line 30 ERROR: Undefined symbol
+0000000C  223C 004DBD16             30      move.l  #SEGMENT_WIDTH, d1
+00000012  4E4F                      31      trap    #15                         ; Set segment width
+00000014                            32      
+Line 33 ERROR: Undefined symbol
+00000014  7016                      33      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 34 ERROR: Undefined symbol
+00000016  223C 004DBD16             34      move.l  #SEVEN_SEGMENT_NUMBER_COLOR, d1
+0000001C  4E4F                      35      trap    #15                         ; Set segment color
+0000001E                            36      
+Line 37 ERROR: Undefined symbol
+0000001E  242F BD16                 37      move.l  (TARGET_NUMBER_OFFSET)(sp), d2
+00000022                            38  
+Line 39 ERROR: Undefined symbol
+00000022  84FC BD16                 39      divu    #SEGMENT_NUMBER_BASE, d2    ; Divide by 10 to get 1s, and 10s place
+00000026  3602                      40      move.w  d2, d3                      ; 10s
+00000028  4842                      41      swap    d2                          ; 1s 
+0000002A                            42      
+0000002A                            43      ; Put encodings into d1, d2
+0000002A  4BF9 000001C2             44      lea     NumberSegmentEncoding, a5
+00000030  1C35 2000                 45      move.b  (a5, d2.w), d6
+00000034  1E35 3000                 46      move.b  (a5, d3.w), d7
+00000038                            47      
+00000038                            48      
+00000038                            49      ; ONES ----------------------------------------------------------
+00000038  4BF9 000001A4             50      lea     SegmentRoutineTable, a5
+0000003E  2C79 000001A4             51      move.l  (SegmentRoutineTable), a6
+Line 52 ERROR: Symbol value differs between first and second pass
+00000044                            52  SEVEN_SEGMENT_ONES_LOOP:
+00000044  0806 0000                 53      btst    #0, d6                      ; Checks if lowest bit == 0
+00000048  6700 001C                 54      beq     SKIP_SEGMENT_ONES_DRAW      ; Skips when lowest bit == 0
+0000004C  4E96                      55      jsr     (a6)
+0000004E                            56      
+Line 57 ERROR: Symbol value differs between first and second pass
+0000004E                            57  SKIP_SEGMENT_ONES_DRAW:
+Line 58 ERROR: Undefined symbol
+0000004E  DBFC 004DBD16             58      add.l   #BYTES_IN_LONG, a5
+00000054  2C55                      59      move.l  (a5), a6
+00000056  E24E                      60      lsr     #1, d6
+00000058  BC3C 0000                 61      cmp.b   #0, d6                      ; Branch if remaining segments
+0000005C  66FE                      62      bne     SEVEN_SEGMENT_ONES_LOOP
+0000005E                            63      
+0000005E                            64      ; TENS ----------------------------------------------------------
+Line 65 ERROR: Undefined symbol
+0000005E  0685 004DBD16             65      add.l   #SEGMENT_PLACE_X_OFFSET, d5
+00000064  4BF9 000001A4             66      lea     SegmentRoutineTable, a5
+0000006A  2C79 000001A4             67      move.l  (SegmentRoutineTable), a6
+Line 68 ERROR: Symbol value differs between first and second pass
+00000070                            68  SEVEN_SEGMENT_TENS_LOOP:
+00000070  0807 0000                 69      btst    #0, d7                      ; Checks if lowest bit == 0
+00000074  6700 001C                 70      beq     SKIP_SEGMENT_TENS_DRAW      ; Skips when lowest bit == 0
+00000078  4E96                      71      jsr     (a6)
+0000007A                            72      
+Line 73 ERROR: Symbol value differs between first and second pass
+0000007A                            73  SKIP_SEGMENT_TENS_DRAW:
+Line 74 ERROR: Undefined symbol
+0000007A  DBFC 004DBD16             74      add.l   #BYTES_IN_LONG, a5
+00000080  2C55                      75      move.l  (a5), a6
+00000082  E24F                      76      lsr     #1, d7
+00000084  BE3C 0000                 77      cmp.b   #0, d7              ; Branch if remaining segments
+00000088  66FE                      78      bne     SEVEN_SEGMENT_TENS_LOOP    
+0000008A                            79      
+Line 80 ERROR: Undefined symbol
+0000008A  7016                      80      moveq.l #SET_PEN_WIDTH_TASK, d0
+0000008C  7201                      81      move.l  #1, d1
+0000008E  4E4F                      82      trap    #15                         ; Reset width
+00000090                            83      
+Line 84 ERROR: Undefined symbol
+00000090  7016                      84      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 85 ERROR: Undefined symbol
+00000092  223C 004DBD16             85      move.l  #WHITE, d1
+00000098  4E4F                      86      trap    #15                         ; Reset segment color
+0000009A                            87      
+Line 88 ERROR: Undefined symbol
+0000009A                            88      movem.l (sp)+, ALL_REG
+0000009A  4E75                      89      rts
+0000009C                            90      
+0000009C                            91  * All Segments draw the specified segment from a seven segemnt display
+0000009C                            92  * Input word-d5: an offset in the x position
+0000009C                            93  * Output       : Draws the segment as a line to screen 
+0000009C                            94  * No Return
+Line 95 ERROR: Symbol value differs between first and second pass
+0000009C                            95  A_SEGMENT:
+Line 96 ERROR: Undefined symbol
+0000009C  7016                      96      moveq.l #DRAW_LINE_START_END_TASK, d0
+Line 97 ERROR: Undefined symbol
+0000009E  223C 004DBD16             97      move.l  #SEGMENT_ONES_PLACE_POS_X, d1
+000000A4  9285                      98      sub.l   d5, d1
+Line 99 ERROR: Undefined symbol
+000000A6  243C 004DBD16             99      move.l  #SEGMENT_ONES_PLACE_POS_Y, d2
+Line 100 ERROR: Invalid syntax
+000000AC                           100      move.l  #(SEGMENT_ONES_PLACE_POS_X+SEGMENT_LENGTH), d3
+000000AC  9685                     101      sub.l   d5, d3
+Line 102 ERROR: Undefined symbol
+000000AE  283C 004DBD16            102      move.l  #SEGMENT_ONES_PLACE_POS_Y, d4
+000000B4  4E4F                     103      trap    #15
+000000B6  4E75                     104      rts
+000000B8                           105  
+Line 106 ERROR: Symbol value differs between first and second pass
+000000B8                           106  B_SEGMENT:
+Line 107 ERROR: Undefined symbol
+000000B8  7016                     107      moveq.l #DRAW_LINE_START_END_TASK, d0
+Line 108 ERROR: Invalid syntax
+000000BA                           108      move.l  #(SEGMENT_ONES_PLACE_POS_X+SEGMENT_LENGTH), d1
+000000BA  9285                     109      sub.l   d5, d1
+Line 110 ERROR: Undefined symbol
+000000BC  243C 004DBD16            110      move.l  #SEGMENT_ONES_PLACE_POS_Y, d2
+Line 111 ERROR: Invalid syntax
+000000C2                           111      move.l  #(SEGMENT_ONES_PLACE_POS_X+SEGMENT_LENGTH), d3
+000000C2  9685                     112      sub.l   d5, d3
+Line 113 ERROR: Invalid syntax
+000000C4                           113      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH), d4
+000000C4  4E4F                     114      trap    #15
+000000C6                           115  
+000000C6  4E75                     116      rts
+000000C8                           117  
+Line 118 ERROR: Symbol value differs between first and second pass
+000000C8                           118  C_SEGMENT:
+Line 119 ERROR: Undefined symbol
+000000C8  7016                     119      moveq.l #DRAW_LINE_START_END_TASK, d0
+Line 120 ERROR: Invalid syntax
+000000CA                           120      move.l  #(SEGMENT_ONES_PLACE_POS_X+SEGMENT_LENGTH), d1
+000000CA  9285                     121      sub.l   d5, d1
+Line 122 ERROR: Invalid syntax
+000000CC                           122      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH), d2
+Line 123 ERROR: Invalid syntax
+000000CC                           123      move.l  #(SEGMENT_ONES_PLACE_POS_X+SEGMENT_LENGTH), d3
+000000CC  9685                     124      sub.l   d5, d3
+Line 125 ERROR: Invalid syntax
+000000CE                           125      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH*2), d4
+000000CE  4E4F                     126      trap    #15
+000000D0                           127  
+000000D0  4E75                     128      rts
+000000D2                           129  
+Line 130 ERROR: Symbol value differs between first and second pass
+000000D2                           130  D_SEGMENT:
+Line 131 ERROR: Undefined symbol
+000000D2  7016                     131      moveq.l #DRAW_LINE_START_END_TASK, d0
+Line 132 ERROR: Undefined symbol
+000000D4  223C 004DBD16            132      move.l  #(SEGMENT_ONES_PLACE_POS_X), d1
+000000DA  9285                     133      sub.l   d5, d1
+Line 134 ERROR: Invalid syntax
+000000DC                           134      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH*2), d2
+Line 135 ERROR: Invalid syntax
+000000DC                           135      move.l  #(SEGMENT_ONES_PLACE_POS_X+SEGMENT_LENGTH), d3
+000000DC  9685                     136      sub.l   d5, d3
+Line 137 ERROR: Invalid syntax
+000000DE                           137      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH*2), d4
+000000DE  4E4F                     138      trap    #15
+000000E0                           139  
+000000E0  4E75                     140      rts
+000000E2                           141  
+Line 142 ERROR: Symbol value differs between first and second pass
+000000E2                           142  E_SEGMENT:
+Line 143 ERROR: Undefined symbol
+000000E2  7016                     143      moveq.l #DRAW_LINE_START_END_TASK, d0
+Line 144 ERROR: Undefined symbol
+000000E4  223C 004DBD16            144      move.l  #(SEGMENT_ONES_PLACE_POS_X), d1
+000000EA  9285                     145      sub.l   d5, d1
+Line 146 ERROR: Invalid syntax
+000000EC                           146      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH), d2
+Line 147 ERROR: Undefined symbol
+000000EC  263C 004DBD16            147      move.l  #(SEGMENT_ONES_PLACE_POS_X), d3
+000000F2  9685                     148      sub.l   d5, d3
+Line 149 ERROR: Invalid syntax
+000000F4                           149      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH*2), d4
+000000F4  4E4F                     150      trap    #15
+000000F6                           151  
+000000F6  4E75                     152      rts
+000000F8                           153  
+Line 154 ERROR: Symbol value differs between first and second pass
+000000F8                           154  F_SEGMENT:
+Line 155 ERROR: Undefined symbol
+000000F8  7016                     155      moveq.l #DRAW_LINE_START_END_TASK, d0
+Line 156 ERROR: Undefined symbol
+000000FA  223C 004DBD16            156      move.l  #(SEGMENT_ONES_PLACE_POS_X), d1
+00000100  9285                     157      sub.l   d5, d1
+Line 158 ERROR: Undefined symbol
+00000102  243C 004DBD16            158      move.l  #(SEGMENT_ONES_PLACE_POS_Y), d2
+Line 159 ERROR: Undefined symbol
+00000108  263C 004DBD16            159      move.l  #(SEGMENT_ONES_PLACE_POS_X), d3
+0000010E  9685                     160      sub.l   d5, d3
+Line 161 ERROR: Invalid syntax
+00000110                           161      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH), d4
+00000110  4E4F                     162      trap    #15
+00000112                           163  
+00000112  4E75                     164      rts
+00000114                           165  
+Line 166 ERROR: Symbol value differs between first and second pass
+00000114                           166  G_SEGMENT:
+Line 167 ERROR: Undefined symbol
+00000114  7016                     167      moveq.l #DRAW_LINE_START_END_TASK, d0
+Line 168 ERROR: Undefined symbol
+00000116  223C 004DBD16            168      move.l  #(SEGMENT_ONES_PLACE_POS_X), d1
+0000011C  9285                     169      sub.l   d5, d1
+Line 170 ERROR: Invalid syntax
+0000011E                           170      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH), d2
+Line 171 ERROR: Invalid syntax
+0000011E                           171      move.l  #(SEGMENT_ONES_PLACE_POS_X+SEGMENT_LENGTH), d3
+0000011E  9685                     172      sub.l   d5, d3
+Line 173 ERROR: Invalid syntax
+00000120                           173      move.l  #(SEGMENT_ONES_PLACE_POS_Y+SEGMENT_LENGTH), d4
+00000120  4E4F                     174      trap    #15
+00000122                           175  
+00000122  4E75                     176      rts
+00000124                           177      
+00000124= 0001                     178                          dc.w    1
+Line 179 ERROR: Symbol value differs between first and second pass
+00000126=                          179  SegmentRoutineTable     dc.l    A_SEGMENT, B_SEGMENT, C_SEGMENT, D_SEGMENT
+00000126= 0000013C 0000015E ...    180                          dc.l    E_SEGMENT, F_SEGMENT, G_SEGMENT
+00000132                           181                          
+00000132= 0001                     182                          dc.w    1
+Line 183 ERROR: Symbol value differs between first and second pass
+00000134=                          183  NumberSegmentEncoding   dc.b    %00111111, %00000110, %01011011, %01001111, %01100110
+00000134= 6D 7D 07 7F 6F           184                          dc.b    %01101101, %01111101, %00000111, %01111111, %01101111
+0000013A= 0001                     185                          dc.w    1
+0000013C                           186      
+0000013C                           187  
+0000013C                           188  
+0000013C                           189  
+0000013C                           190  
+0000013C                           191  
+0000013C                           192  
+0000013C                           193  
+0000013C                           194  
+0000013C                           195  
+0000013C                           196  
+0000013C                           197  
+0000013C                           198  
+0000013C                           199  
+0000013C                           200  
+0000013C                           201  
+0000013C                           202  
+0000013C                           203  
+0000013C                           204  
+0000013C                           205  
+0000013C                           206  
+Line 207 WARNING: END directive missing, starting address not set
+
+68 errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+A_SEGMENT           B4
+B_SEGMENT           D6
+C_SEGMENT           F8
+DRAW_TWO_DIGIT_NUMBER  0
+D_SEGMENT           11A
+E_SEGMENT           13C
+F_SEGMENT           15E
+G_SEGMENT           180
+NUMBERSEGMENTENCODING  1C2
+SEGMENTROUTINETABLE  1A4
+SEVEN_SEGMENT_ONES_LOOP  5C
+SEVEN_SEGMENT_TENS_LOOP  88
+SKIP_SEGMENT_ONES_DRAW  66
+SKIP_SEGMENT_TENS_DRAW  92

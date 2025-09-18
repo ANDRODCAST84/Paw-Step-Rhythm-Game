@@ -1,0 +1,225 @@
+00000000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 7/3/2025 9:25:23 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : Sound file init
+00000000                             3  * Written by : Albert Castrejon
+00000000                             4  * Date       : 6/2/25
+00000000                             5  * Description: Initializes the songs and their respective sound files
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  
+00000000                             8  INITIALIZE_SOUNDS:
+00000000                             9      ; Halt on load - Prevent running if wrong file type
+Line 10 ERROR: Undefined symbol
+00000000  2079 004DBD16             10      move.l  (ChosenSound), a0
+Line 11 ERROR: Undefined symbol
+00000006  0C90 004DBD16             11      cmp.l   #SOUND_FILE_SIGNATURE, (a0)    
+0000000C  6700 0014                 12      beq     CORRECT_SOUND_SIGNATURE
+00000010                            13      
+Line 14 ERROR: Undefined symbol
+00000010  203C 004DBD16             14      move.l  #PRINT_CR_LF_TASK, d0
+Line 15 ERROR: Undefined symbol
+00000016  43F9 004DBD16             15      lea     Error_WrongSOUNDSignature, a1
+0000001C  4E4F                      16      trap    #15                                     ; Print out error message
+0000001E                            17      
+0000001E  FFFF FFFF                 18      SIMHALT
+00000022                            19  CORRECT_SOUND_SIGNATURE:
+Line 20 ERROR: Undefined symbol
+00000022  2E28 BD16                 20      move.l  OFFSET_SOUND_TEMPO(a0), d7              ; Tempo
+00000026  2607                      21      move.l  d7, d3                                  ; Save tempo for note offset and speed
+00000028                            22      
+Line 23 ERROR: Undefined symbol
+00000028  8EE8 BD16                 23      divu    OFFSET_SOUND_QUARTER_NOTE_TICKS(a0), d7 ; Tempo / Tick per quarter note -> d7
+0000002C  4847                      24      swap    d7
+0000002E  3E3C 0000                 25      move.w  #0, d7
+00000032  4847                      26      swap    d7                                      ; Clear upper word
+00000034                            27      
+Line 28 ERROR: Undefined symbol
+00000034  3C28 BD16                 28      move.w  OFFSET_KEYPRESS_AMOUNT(a0), d6
+Line 29 ERROR: Undefined symbol
+00000038  23C6 005455C8             29      move.l  d6, (TotalNotes)                        ; Number of notes
+Line 30 ERROR: Undefined symbol
+0000003E  23C6 005455CC             30      move.l  d6, (EndTotalNotes)                     ; Save for end screen
+Line 31 ERROR: Undefined symbol
+00000044  3C28 BD16                 31      move.w  OFFSET_EVENTS_AMOUNT(a0), d6            ; Number of events
+Line 32 ERROR: Undefined symbol
+00000048  0446 BD16                 32      subi.w  #DBRA_ADJUSTMENT, d6                    ; Number of events counter -> d6
+0000004C                            33      
+0000004C                            34      
+0000004C                            35      ; Getting note timing spawn offset and Note speed -------------------------
+0000004C                            36      
+0000004C                            37      ; Tempo / 1000
+0000004C  2F3C 000003E8             38      move.l  #1000, -(sp)
+00000052  2F03                      39      move.l  d3, -(sp)
+Line 40 ERROR: Undefined symbol
+00000054  4EB9 004DBD16             40      jsr     DIVIDE_WITH_ROUNDING
+Line 41 ERROR: Undefined symbol
+0000005A  4FEF BD16                 41      lea     (ROUNDING_DIVIDE_PARAM_SIZE)(sp), sp
+Line 42 ERROR: Undefined symbol
+0000005E  262F BD16                 42      move.l  (RETURN)(sp), d3                                ; Time in a beat
+00000062                            43      
+00000062                            44      ; (Time per beat) * 4 = Full measure
+00000062  E58B                      45      lsl.l   #2, d3
+Line 46 ERROR: Undefined symbol
+00000064  23C3 005455D0             46      move.l  d3, (NoteSpawnOffsetTime)                       ; Save note spawn time offset
+0000006A                            47      
+0000006A                            48      
+0000006A                            49      ; (Time per measure) / 10 = Time per measure in Centiseconds
+0000006A  2F3C 0000000A             50      move.l  #10, -(sp)
+00000070  2F03                      51      move.l  d3, -(sp)
+Line 52 ERROR: Undefined symbol
+00000072  4EB9 004DBD16             52      jsr     DIVIDE_WITH_ROUNDING
+Line 53 ERROR: Undefined symbol
+00000078  4FEF BD16                 53      lea     (ROUNDING_DIVIDE_PARAM_SIZE)(sp), sp
+Line 54 ERROR: Undefined symbol
+0000007C  262F BD16                 54      move.l  (RETURN)(sp), d3
+00000080                            55      
+00000080                            56      ; (Play Area Height) / (Time per measure in Ccentiseconds) = Note speed in centiseconds
+00000080                            57      
+Line 58 ERROR: Invalid syntax
+00000080                            58      move.l  #((PLAY_AREA_BOTTOM_Y+1)<<FIXED_POINT_BITS), d0 ; PlayArea Height in fixed point
+00000080  2F03                      59      move.l  d3, -(sp)
+00000082  2F00                      60      move.l  d0, -(sp)
+Line 61 ERROR: Undefined symbol
+00000084  4EB9 004DBD16             61      jsr     DIVIDE_WITH_ROUNDING
+Line 62 ERROR: Undefined symbol
+0000008A  4FEF BD16                 62      lea     (ROUNDING_DIVIDE_PARAM_SIZE)(sp), sp
+Line 63 ERROR: Undefined symbol
+0000008E  262F BD16                 63      move.l  (RETURN)(sp), d3
+00000092                            64      
+Line 65 ERROR: Undefined symbol
+00000092  23C3 005455D0             65      move.l  d3, (NoteSpeedPixelCentiSecond)                 ; Final speed calculation for notes
+00000098                            66      ; -------------------------------------------------------------------------
+00000098                            67      
+00000098                            68      
+00000098                            69      
+Line 70 ERROR: Undefined symbol
+00000098  43E8 BD16                 70      lea     OFFSET_START_NOTE_EVENTS(a0), a1
+0000009C  7600                      71      moveq.l #0, d3                                          ; d3 Total Time passed
+0000009E                            72      
+0000009E                            73      ; Get all note spawn times reduced by the offset time to account for travel time
+Line 74 ERROR: Symbol value differs between first and second pass
+0000009E                            74  PROCESS_EVENTS:
+Line 75 ERROR: Undefined symbol
+0000009E  4DF9 004DBD16             75      lea     SongLaneTimingTable, a6
+000000A4                            76      
+000000A4  7000                      77      moveq.l #0, d0
+000000A6  7200                      78      moveq.l #0, d1
+000000A8  7400                      79      moveq.l #0, d2
+000000AA                            80      
+000000AA  1019                      81      move.b  (a1)+, d0                           ; First ticks byte
+000000AC                            82      
+000000AC                            83      ; Check if first bit is set indicating multibyte length delta ticks
+000000AC  0800 0007                 84      btst    #7, d0
+000000B0  6700 0010                 85      beq     SKIP_VARIABLE_LENGTH_CONVERSION     ; Branch if msb is NOT set ~ 1 byte delta ticks
+000000B4                            86     
+000000B4  C03C 007F                 87      and.b   #%01111111, d0                      ; Set first bit to 0
+000000B8  EF88                      88      lsl.l   #7, d0                                          
+000000BA  1419                      89      move.b  (a1)+, d2                           ; Get second ticks byte
+000000BC                            90      
+Line 91 ERROR: Symbol value differs between first and second pass
+000000BC                            91  SKIP_VARIABLE_LENGTH_CONVERSION:
+000000BC  D480                      92      add.l   d0, d2                              ; Total delta ticks -> d2
+000000BE  1219                      93      move.b  (a1)+, d1                           ; Event -> d1
+000000C0                            94      
+000000C0                            95      
+000000C0  C4C7                      96      mulu    d7, d2                              ; Ticks per quarter note * Delta Ticks
+000000C2                            97      
+000000C2                            98      
+000000C2  2F3C 000003E8             99      move.l  #1000, -(sp)
+000000C8  2F02                     100      move.l  d2, -(sp)                           ; / 1000 to get miliseconds
+Line 101 ERROR: Undefined symbol
+000000CA  4EB9 004DBD16            101      jsr     DIVIDE_WITH_ROUNDING
+Line 102 ERROR: Undefined symbol
+000000D0  4FEF BD16                102      lea     (ROUNDING_DIVIDE_PARAM_SIZE)(sp), sp
+Line 103 ERROR: Undefined symbol
+000000D4  242F BD16                103      move.l  (RETURN)(sp), d2
+000000D8                           104  
+000000D8  D682                     105      add.l   d2, d3                              ; Add to total Time in miliseconds
+000000DA                           106      
+000000DA                           107      ; Check for note pressed event
+Line 108 ERROR: Undefined symbol
+000000DA  B23C 0016                108      cmp.b   #NOTE_PRESSED_EVENT, d1     
+000000DE  6600 0022                109      bne     NO_NOTE_PRESSED                     ; Branch and skip if NOT note pressed event
+000000E2                           110      
+000000E2  7000                     111      moveq.l #0, d0
+000000E4  1011                     112      move.b  (a1), d0                            ; Get Note lane
+000000E6  E588                     113      lsl.l   #2, d0                              ; Multiply by 4 for indexing
+000000E8                           114      
+000000E8  4DF6 0000                115      lea     (a6, d0), a6                        ; Index to correct lanes timing table
+000000EC  2056                     116      move.l  (a6), a0                            ; Access the timing table
+000000EE  5496                     117      add.l   #2, (a6)                            ; Increment that tables index
+000000F0                           118       
+000000F0  2203                     119      move.l  d3, d1
+Line 120 ERROR: Undefined symbol
+000000F2  92B9 004DBD16            120      sub.l  (NoteSpawnOffsetTime), d1            ; Reduce time to account for spawning offscreen
+000000F8  5281                     121      add.l   #1, d1
+000000FA  3081                     122      move.w  d1, (a0)                            ; Push time to list of spawn times
+000000FC                           123  
+Line 124 ERROR: Symbol value differs between first and second pass
+000000FC                           124  NO_NOTE_PRESSED:
+000000FC  5489                     125      add.l   #2, a1                              ; skip to next delta time
+000000FE  51CE FFA4                126      dbra    d6, PROCESS_EVENTS                  ; Continue processing events
+00000102                           127      
+00000102                           128      ; Get the speed for the progress bar fill
+00000102                           129      
+00000102                           130      ; (Total time passed) / 10 = total time passed in centiseconds
+00000102  2F3C 0000000A            131      move.l  #10, -(sp)
+00000108  2F03                     132      move.l  d3, -(sp)                           
+Line 133 ERROR: Undefined symbol
+0000010A  4EB9 004DBD16            133      jsr     DIVIDE_WITH_ROUNDING
+Line 134 ERROR: Undefined symbol
+00000110  4FEF BD16                134      lea     (ROUNDING_DIVIDE_PARAM_SIZE)(sp), sp
+Line 135 ERROR: Undefined symbol
+00000114  262F BD16                135      move.l  (RETURN)(sp), d3    
+00000118                           136             
+Line 137 ERROR: Invalid syntax
+00000118                           137      move.l  #((PROGRESS_BAR_BOTTOM_Y-PROGRESS_BAR_TOP_Y)<<FIXED_POINT_BITS), d0 
+00000118                           138      
+00000118                           139      ; ProgressBar Height / Total time centiseconds = Speed in fill rate in pixels per centi seconds
+00000118  2F03                     140      move.l  d3, -(sp)                   
+0000011A  2F00                     141      move.l  d0, -(sp)
+Line 142 ERROR: Undefined symbol
+0000011C  4EB9 004DBD16            142      jsr     DIVIDE_WITH_ROUNDING
+Line 143 ERROR: Undefined symbol
+00000122  4FEF BD16                143      lea     (ROUNDING_DIVIDE_PARAM_SIZE)(sp), sp
+Line 144 ERROR: Undefined symbol
+00000126  202F BD16                144      move.l  (RETURN)(sp), d0
+0000012A                           145      
+Line 146 ERROR: Undefined symbol
+0000012A  23C0 005455D0            146      move.l  d0, (ProgressSpeedPixelCentiSecond) ; Final speed for progressbar progression
+00000130                           147      
+00000130  4E75                     148      rts
+00000132                           149      
+00000132                           150      
+00000132                           151      
+00000132                           152      
+00000132                           153  
+00000132                           154  
+00000132                           155  
+00000132                           156  
+00000132                           157  
+00000132                           158  
+00000132                           159  
+00000132                           160  
+00000132                           161  
+00000132                           162  
+00000132                           163  
+00000132                           164  
+00000132                           165  
+00000132                           166  
+Line 167 WARNING: END directive missing, starting address not set
+
+41 errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+CORRECT_SOUND_SIGNATURE  22
+INITIALIZE_SOUNDS   0
+NO_NOTE_PRESSED     102
+PROCESS_EVENTS      A4
+SKIP_VARIABLE_LENGTH_CONVERSION  C2

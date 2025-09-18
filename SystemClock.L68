@@ -1,0 +1,41 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 5/30/2025 3:32:55 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : System Clock
+00000000                             3  * Written by : Albert Castrejon
+00000000                             4  * Date       : 5/30/25
+00000000                             5  * Description: Handles getting delta time from the system clock
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  
+00000000                             8  *   Description: Sets DeltaTime Global Variable to the time in hundredths 
+00000000                             9  *                of a second since last frame
+00000000                            10  *   Input:       N/A
+00000000                            11  *   Output:      DeltaTime = Time since last frame
+00000000                            12  *                PreviousTime = New Current time to use for next call
+00000000                            13  GET_DELTA_TIME:    
+Line 14 ERROR: Undefined symbol
+00000000  7016                      14      moveq.l #GET_TIME_TASK, d0
+00000002  4E4F                      15      trap    #15                 ; New current time -> d1
+00000004  2401                      16      move.l  d1, d2              ; Save for next PreviousTime
+00000006                            17      
+Line 18 ERROR: Undefined symbol
+00000006  92B9 004DBD16             18      sub.l   (PreviousTime), d1  ; Current - prev
+Line 19 ERROR: Undefined symbol
+0000000C  23C2 005455D0             19      move.l  d2, (PreviousTime)  ; Update with new Previous time
+00000012                            20      
+Line 21 ERROR: Undefined symbol
+00000012  23C1 005455C8             21      move.l  d1, (DeltaTime)     ; Update Delta Time
+00000018                            22      
+00000018  4E75                      23      rts
+Line 24 WARNING: END directive missing, starting address not set
+
+4 errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+GET_DELTA_TIME      0

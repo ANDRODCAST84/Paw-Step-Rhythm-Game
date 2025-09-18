@@ -1,0 +1,246 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 6/17/2025 9:38:43 AM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : InitLevel
+00000000                             3  * Written by : Albert Castrejon
+00000000                             4  * Date       : 6/3/25
+00000000                             5  * Description: Runs all required initialization for level screen
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  
+00000000                             8  LOAD_LEVEL:
+00000000                             9      ; Print "Loading" to screen
+Line 10 ERROR: Undefined symbol
+00000000  7016                      10      moveq.l #PRINT_CR_LF_TASK, d0
+00000002  43F9 00000212             11      lea     LoadingString, a1
+00000008  4E4F                      12      trap    #15
+0000000A                            13      
+0000000A                            14      
+0000000A                            15  
+0000000A                            16      ;Update Screen
+Line 17 ERROR: Undefined symbol
+0000000A  7016                      17      moveq.l #PAINT_BUFFER_SCREEN_TASK, d0
+0000000C  4E4F                      18      trap    #15
+0000000E                            19      
+0000000E                            20      ; Draw background
+Line 21 ERROR: Undefined symbol
+0000000E  2F3C 004DBD16             21      move.l  #TOP_LEFT_SCREEN, -(sp) ; Screen start Position
+Line 22 ERROR: Undefined symbol
+00000014  3F3C BD16                 22      move.w  #SCREEN_HEIGHT, -(sp)   ; Chunk height
+Line 23 ERROR: Undefined symbol
+00000018  3F3C BD16                 23      move.w  #SCREEN_WIDTH, -(sp)    ; Chunk width
+Line 24 ERROR: Undefined symbol
+0000001C  2F3C 004DBD16             24      move.l  #TOP_LEFT_SCREEN, -(sp) ; Chunk start Position
+Line 25 ERROR: Undefined symbol
+00000022  2F3C 004DBD16             25      move.l  #LevelBackground, -(sp) ; Bitmap Address 
+Line 26 ERROR: Undefined symbol
+00000028  4EB9 004DBD16             26      jsr     DRAW_BITMAP_CHUNK
+Line 27 ERROR: Undefined symbol
+0000002E  4FEF BD16                 27      lea     BITMAP_CHUNK_PARAM_SIZE(sp), sp ; Fix stack
+00000032                            28      
+00000032                            29      ; Draw cat
+Line 30 ERROR: Undefined symbol
+00000032  2F3C 004DBD16             30      move.l  #GATO_SCREEN_START_POS, -(sp) ; Screen start Position
+Line 31 ERROR: Undefined symbol
+00000038  3F3C BD16                 31      move.w  #GATO_FULL_HEIGHT, -(sp)   ; Chunk height
+Line 32 ERROR: Undefined symbol
+0000003C  3F3C BD16                 32      move.w  #GATO_FULL_WIDTH, -(sp)    ; Chunk width
+00000040  2F3C 00000000             33      move.l  #0, -(sp) ; Chunk start Position
+Line 34 ERROR: Undefined symbol
+00000046  2F3C 004DBD16             34      move.l  #GatoEepy, -(sp) ; Bitmap Address 
+Line 35 ERROR: Undefined symbol
+0000004C  4EB9 004DBD16             35      jsr     DRAW_BITMAP_CHUNK
+Line 36 ERROR: Undefined symbol
+00000052  4FEF BD16                 36      lea     BITMAP_CHUNK_PARAM_SIZE(sp), sp ; Fix stack
+00000056                            37  
+00000056                            38      ; Draw progress bar
+Line 39 ERROR: Undefined symbol
+00000056  7016                      39      moveq.l #DRAW_RECT_TASK, d0
+Line 40 ERROR: Undefined symbol
+00000058  223C 004DBD16             40      move.l  #PROGRESS_BAR_LEFT_X, d1
+Line 41 ERROR: Undefined symbol
+0000005E  243C 004DBD16             41      move.l  #PROGRESS_BAR_TOP_Y, d2
+Line 42 ERROR: Undefined symbol
+00000064  263C 004DBD16             42      move.l  #PROGRESS_BAR_RIGHT_X, d3
+Line 43 ERROR: Undefined symbol
+0000006A  283C 004DBD16             43      move.l  #PROGRESS_BAR_BOTTOM_Y, d4
+00000070  4E4F                      44      trap    #15
+00000072                            45  
+Line 46 ERROR: Undefined symbol
+00000072  2F39 004DBD16             46      move.l  (CurrentCombo), -(sp)
+Line 47 ERROR: Undefined symbol
+00000078  4EB9 004DBD16             47      jsr     DRAW_TWO_DIGIT_NUMBER
+Line 48 ERROR: Undefined symbol
+0000007E  4FEF BD16                 48      lea     (BYTES_IN_SEGMENT_PARAMS)(sp), sp
+00000082                            49      
+00000082                            50      ;Update Screen
+Line 51 ERROR: Undefined symbol
+00000082  7016                      51      moveq.l #PAINT_BUFFER_SCREEN_TASK, d0
+00000084  4E4F                      52      trap    #15
+00000086                            53      
+00000086                            54      ; Set init start time
+Line 55 ERROR: Undefined symbol
+00000086  7016                      55      moveq.l #GET_TIME_TASK, d0
+00000088  4E4F                      56      trap    #15
+Line 57 ERROR: Undefined symbol
+0000008A  23C1 005455B8             57      move.l  d1, (PreviousTime)
+00000090                            58         
+00000090                            59      ; Start song
+Line 60 ERROR: Undefined symbol
+00000090  7016                      60      moveq.l #PLAY_SOUND_DIRECTX_TASK, d0
+Line 61 ERROR: Undefined symbol
+00000092  2279 004DBD16             61      move.l  (ChosenSong), a1
+00000098  4E4F                      62      trap    #15
+0000009A                            63      
+0000009A  4E75                      64      rts
+0000009C                            65      
+0000009C                            66      
+0000009C                            67      
+0000009C                            68  RESET_LEVEL_DATA:
+Line 69 ERROR: Undefined symbol
+0000009C  23FC 00000000 005455B8    69      move.l  #0, (TimeElapsed)
+000000A6                            70  
+Line 71 ERROR: Undefined symbol
+000000A6  23FC 00000000 005455B8    71      move.l  #0, (RetrySong)
+Line 72 ERROR: Undefined symbol
+000000B0  23FC 00000000 005455B8    72      move.l  #0, (LevelSelect)
+Line 73 ERROR: Undefined symbol
+000000BA  23FC 00000000 005455B8    73      move.l  #0, (ExitGame)
+000000C4                            74                                             
+Line 75 ERROR: Undefined symbol
+000000C4  13FC 0000 005455B8        75      move.b  #0, (ReadyForGame)
+000000CC                            76                              
+Line 77 ERROR: Undefined symbol
+000000CC  23FC 004DBD16 005455B8    77      move.l  #SongLane1Timings, (CurrentLane1Timing)
+Line 78 ERROR: Undefined symbol
+000000D6  23FC 004DBD16 005455B8    78      move.l  #SongLane2Timings, (CurrentLane2Timing)
+Line 79 ERROR: Undefined symbol
+000000E0  23FC 004DBD16 005455B8    79      move.l  #SongLane3Timings, (CurrentLane3Timing)
+Line 80 ERROR: Undefined symbol
+000000EA  23FC 004DBD16 005455B8    80      move.l  #SongLane4Timings, (CurrentLane4Timing)
+Line 81 ERROR: Undefined symbol
+000000F4  23FC 004DBD16 005455B8    81      move.l  #SongLane5Timings, (CurrentLane5Timing) 
+000000FE                            82  
+000000FE                            83                       
+Line 84 ERROR: Undefined symbol
+000000FE  13FC 0000 005455B8        84      move.b  #0, (SongFinished)
+00000106                            85                              
+00000106                            86  
+Line 87 ERROR: Undefined symbol
+00000106  23FC 004DBD16 005455B8    87      move.l  #DECENT_COLOR, (PlayAreaBoarderColor)
+00000110                            88      
+Line 89 ERROR: Undefined symbol
+00000110  23FC 00000000 005455B8    89      move.l  #0, (OldestLane1NoteOffset)
+Line 90 ERROR: Undefined symbol
+0000011A  23FC 004DBD16 005455B8    90      move.l  #Lane1NotePosTable, (Lane1CurrentNote)
+Line 91 ERROR: Undefined symbol
+00000124  23FC FFFFFFFF 005455B8    91      move.l  #-1, (Lane1CurrentNoteIndex)
+0000012E                            92      
+Line 93 ERROR: Undefined symbol
+0000012E  23FC 00000000 005455B8    93      move.l  #0, (OldestLane2NoteOffset)
+Line 94 ERROR: Undefined symbol
+00000138  23FC 004DBD16 005455B8    94      move.l  #Lane2NotePosTable, (Lane2CurrentNote)
+Line 95 ERROR: Undefined symbol
+00000142  23FC FFFFFFFF 005455B8    95      move.l  #-1, (Lane2CurrentNoteIndex)
+0000014C                            96  
+0000014C                            97  
+Line 98 ERROR: Undefined symbol
+0000014C  23FC 00000000 005455B8    98      move.l  #0, (OldestLane3NoteOffset)
+Line 99 ERROR: Undefined symbol
+00000156  23FC 004DBD16 005455B8    99      move.l  #Lane3NotePosTable, (Lane3CurrentNote)
+Line 100 ERROR: Undefined symbol
+00000160  23FC FFFFFFFF 005455B8   100      move.l  #-1, (Lane3CurrentNoteIndex)
+0000016A                           101  
+0000016A                           102  
+Line 103 ERROR: Undefined symbol
+0000016A  23FC 00000000 005455B8   103      move.l  #0, (OldestLane4NoteOffset)
+Line 104 ERROR: Undefined symbol
+00000174  23FC 004DBD16 005455B8   104      move.l  #Lane4NotePosTable, (Lane4CurrentNote)
+Line 105 ERROR: Undefined symbol
+0000017E  23FC FFFFFFFF 005455B8   105      move.l  #-1, (Lane4CurrentNoteIndex)
+00000188                           106  
+Line 107 ERROR: Undefined symbol
+00000188  23FC 00000000 005455B8   107      move.l  #0, (OldestLane5NoteOffset)
+Line 108 ERROR: Undefined symbol
+00000192  23FC 004DBD16 005455B8   108      move.l  #Lane5NotePosTable, (Lane5CurrentNote)
+Line 109 ERROR: Undefined symbol
+0000019C  23FC FFFFFFFF 005455B8   109      move.l  #-1, (Lane5CurrentNoteIndex)
+000001A6                           110      
+Line 111 ERROR: Undefined symbol
+000001A6  23FC 00000000 005455B8   111      move.l  #0, (PerformancePositiveModifier)
+Line 112 ERROR: Undefined symbol
+000001B0  23FC 00000000 005455B8   112      move.l  #0, (PerformanceNegativeModifier)
+Line 113 ERROR: Undefined symbol
+000001BA  23FC 004DBD16 005455B8   113      move.l  #PERFORMANCE_DECENT, (CurrentPerformance)
+Line 114 ERROR: Invalid syntax
+000001C4                           114      move.l  #(PERFORMANCE_STATE_SCORE_SIZE*PERFORMANCE_DECENT), (PerformanceScore)
+000001C4                           115      
+000001C4  7000                     116      move.l  #0, d0
+Line 117 ERROR: Symbol value differs between first and second pass
+000001C6                           117  NEXT_NOTE_POSITION_TABLE:    
+Line 118 ERROR: Undefined symbol
+000001C6  41F9 004DBD16            118      lea     LanePosTables, a0
+000001CC  41F0 0000                119      lea     (a0, d0), a0
+000001D0  2050                     120      move.l  (a0), a0
+000001D2                           121      
+Line 122 ERROR: Undefined symbol
+000001D2  43F9 004DBD16            122      lea     OldestLaneNotes, a1
+000001D8  43F1 0000                123      lea     (a1, d0), a1
+000001DC  2251                     124      move.l  (a1), a1
+Line 125 ERROR: Symbol value differs between first and second pass
+000001DE                           125  RESET_NOTE_POSITIONS:
+Line 126 ERROR: Invalid syntax
+000001DE                           126      move.l  #(NOTE_SPAWN_Y<<FIXED_POINT_BITS), (a0)+
+000001DE  B1C9                     127      cmp.l   a1, a0
+000001E0  6D06                     128      blt     RESET_NOTE_POSITIONS
+000001E2                           129      
+000001E2  5880                     130      add.l   #4, d0
+000001E4  B0BC 00000010            131      cmp.l   #16, d0
+000001EA  6FE4                     132      ble     NEXT_NOTE_POSITION_TABLE
+000001EC                           133  
+Line 134 ERROR: Undefined symbol
+000001EC  23FC 00000000 005455B8   134      move.l  #0, (CurrentCombo)
+000001F6                           135  
+Line 136 ERROR: Invalid syntax
+000001F6                           136      move.l  #(PROGRESS_BAR_BOTTOM_Y<<FIXED_POINT_BITS), (ProgressBarFillHeightPos)
+000001F6                           137  
+000001F6                           138  
+000001F6  4E75                     139      rts
+000001F8                           140      
+Line 141 ERROR: Symbol value differs between first and second pass
+000001F8= 4C 6F 61 64 69 6E 67     141  LoadingString   dc.b    'Loading',0
+000001FF                           142  
+000001FF                           143  
+000001FF                           144  
+000001FF                           145  
+000001FF                           146  
+000001FF                           147  
+000001FF                           148  
+000001FF                           149  
+000001FF                           150  
+000001FF                           151  
+000001FF                           152  
+000001FF                           153  
+000001FF                           154  
+000001FF                           155  
+000001FF                           156  
+000001FF                           157  
+000001FF                           158  
+000001FF                           159  
+000001FF                           160  
+000001FF                           161  
+Line 162 WARNING: END directive missing, starting address not set
+
+67 errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+LOADINGSTRING       212
+LOAD_LEVEL          0
+NEXT_NOTE_POSITION_TABLE  1D0
+RESET_LEVEL_DATA    9C
+RESET_NOTE_POSITIONS  1E8

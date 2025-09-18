@@ -1,0 +1,899 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 6/23/2025 3:20:02 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : Level Game Loop
+00000000                             3  * Written by : Albert Castrejon
+00000000                             4  * Date       : 5/30/25
+00000000                             5  * Description: Controls the game loop that handles the main ryhthm game
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  
+00000000                             8  
+00000000                             9  LEVEL_LOOP:
+00000000                            10      ; Poll for 1, 2, 3, 4 inputs
+Line 11 ERROR: Undefined symbol
+00000000  7016                      11      moveq.l #KEY_INPUT_TASK, d0
+Line 12 ERROR: Undefined symbol
+00000002  223C 004DBD16             12      move.l  #LEVEL_TARGET_INPUTS, d1
+00000008  4E4F                      13      trap    #15
+0000000A                            14      
+Line 15 ERROR: Undefined symbol
+0000000A  2039 004DBD16             15      move.l  (HeldInputs), d0
+Line 16 ERROR: Undefined symbol
+00000010  23C1 005455E0             16      move.l  d1, (HeldInputs)                ; Add all bits currently pressed to held inputs flag
+00000016  4680                      17      not.l   d0                              ; NOT all bits 
+00000018  C280                      18      and.l   d0, d1                          ; Remove all inputs held down creating OnPress behavior
+Line 19 ERROR: Undefined symbol
+0000001A  23C1 005455D0             19      move.l  d1, (InputFlags)                ; Add inputs to input flags
+00000020                            20      
+00000020                            21      ; Poll for 5 input
+Line 22 ERROR: Undefined symbol
+00000020  7016                      22      moveq.l #KEY_INPUT_TASK, d0
+Line 23 ERROR: Undefined symbol
+00000022  223C 004DBD16             23      move.l  #FIVE_PRESSED_INPUT, d1
+00000028  4E4F                      24      trap    #15
+0000002A                            25      
+Line 26 ERROR: Undefined symbol
+0000002A  41F9 004DBD16             26      lea     HeldInputs, a0
+00000030  5888                      27      add.l   #4, a0
+00000032  1010                      28      move.b  (a0), d0
+00000034  1081                      29      move.b  d1, (a0)                        ; Add all bits currently pressed to held inputs flag
+00000036  4600                      30      not.b   d0                              ; NOT all bits
+00000038  C200                      31      and.b   d0, d1                          ; Remove all inputs held down creating OnPress behavior
+0000003A                            32      
+Line 33 ERROR: Undefined symbol
+0000003A  41F9 004DBD16             33      lea     InputFlags, a0
+00000040  5888                      34      add.l   #4, a0
+00000042  1081                      35      move.b  d1, (a0)                        ; Add inputs to input flag in 5th position
+00000044                            36      
+00000044                            37      ; Input d6: lane to check collision
+00000044  7C01                      38      moveq.l #1, d6
+00000046  4EB9 000000E2             39      jsr     PROCESS_INPUTS
+0000004C  7C02                      40      moveq.l #2, d6
+0000004E  4EB9 000000E2             41      jsr     PROCESS_INPUTS
+00000054  7C03                      42      moveq.l #3, d6
+00000056  4EB9 000000E2             43      jsr     PROCESS_INPUTS
+0000005C  7C04                      44      moveq.l #4, d6
+0000005E  4EB9 000000E2             45      jsr     PROCESS_INPUTS
+00000064  7C05                      46      moveq.l #5, d6
+00000066  4EB9 000000E2             47      jsr     PROCESS_INPUTS
+0000006C                            48      
+0000006C                            49      ; Check song finished flag
+Line 50 ERROR: Undefined symbol
+0000006C  0C39 0001 005455B8        50      cmp.b   #1, (SongFinished)
+00000074  6700 006A                 51      beq     FINISH_LEVEL_LOOP               ; Branch and skip if song is finished ~ No more notes
+00000078                            52      
+00000078  4EB9 0000052C             53      jsr     DRAW_PLAY_AREA_STATIC_ELEMENTS
+0000007E                            54      
+0000007E                            55      ; Check total notes remaining
+Line 56 ERROR: Undefined symbol
+0000007E  0CB9 00000000 005455B8    56      cmp.l   #0, (TotalNotes)
+00000088  6600 000A                 57      bne     SKIP_SET_FINISH_FLAG            ; Branch and skip if notes still remaining
+Line 58 ERROR: Undefined symbol
+0000008C  13FC 0001 005455B8        58      move.b  #1, (SongFinished)
+00000094                            59      
+00000094                            60  SKIP_SET_FINISH_FLAG:
+00000094                            61      
+00000094                            62      ; Get note speed * delta time -> d7
+Line 63 ERROR: Undefined symbol
+00000094  2E39 004DBD16             63      move.l  (NoteSpeedPixelCentiSecond), d7
+Line 64 ERROR: Undefined symbol
+0000009A  2239 004DBD16             64      move.l  (DeltaTime), d1
+000000A0  CEC1                      65      mulu    d1, d7
+000000A2                            66      
+000000A2                            67      ; Draw notes for all lanes
+000000A2  7C01                      68      moveq.l #1, d6
+000000A4  4EB9 000001C4             69      jsr     DRAW_NOTES
+000000AA  7C02                      70      moveq.l #2, d6
+000000AC  4EB9 000001C4             71      jsr     DRAW_NOTES
+000000B2  7C03                      72      moveq.l #3, d6
+000000B4  4EB9 000001C4             73      jsr     DRAW_NOTES
+000000BA  7C04                      74      moveq.l #4, d6
+000000BC  4EB9 000001C4             75      jsr     DRAW_NOTES
+000000C2  7C05                      76      moveq.l #5, d6
+000000C4  4EB9 000001C4             77      jsr     DRAW_NOTES
+000000CA                            78      
+000000CA  4EB9 000002A6             79      jsr     UPDATE_PROGRESS_BAR
+000000D0                            80      
+000000D0                            81      ;Update Screen
+Line 82 ERROR: Undefined symbol
+000000D0  7016                      82      moveq.l #PAINT_BUFFER_SCREEN_TASK, d0
+000000D2  4E4F                      83      trap    #15
+000000D4                            84      
+000000D4                            85      ;Update Time Elapsed
+Line 86 ERROR: Undefined symbol
+000000D4  2039 004DBD16             86      move.l  (DeltaTime), d0
+Line 87 ERROR: Undefined symbol
+000000DA  D1B9 005455B8             87      add.l   d0, (TimeElapsed)
+000000E0                            88      
+000000E0                            89  FINISH_LEVEL_LOOP:
+000000E0  4E75                      90      rts
+000000E2                            91  
+000000E2                            92   
+000000E2                            93      ; Input d6 - Target lane to check collisions for
+000000E2                            94  PROCESS_INPUTS:
+Line 95 ERROR: Undefined symbol
+000000E2  0C39 0001 005455B8        95      cmp.b   #1, (SongFinished)
+000000EA  6700 00D6                 96      beq     FINISH_COLLISION_CHECK          ; Skip if song finished
+000000EE  5386                      97      sub.l   #1, d6
+000000F0  2A06                      98      move.l  d6, d5                          ; Input flag index with bytes -> d5
+000000F2                            99      
+000000F2  E58E                     100      lsl.l   #2, d6                          ; For indexing with longs -> d6
+000000F4                           101      
+000000F4                           102      
+000000F4                           103      
+Line 104 ERROR: Undefined symbol
+000000F4  43F9 004DBD16            104      lea     OldestLaneNotes, a1
+000000FA  43F1 6000                105      lea     (a1, d6), a1
+000000FE  2251                     106      move.l  (a1), a1                        ; Oldest, (Farthest down on screen), index offset
+00000100                           107      
+Line 108 ERROR: Undefined symbol
+00000100  41F9 004DBD16            108      lea     LanePosTables, a0
+00000106  41F0 6000                109      lea     (a0, d6), a0
+0000010A  2050                     110      move.l  (a0), a0                        ; Table of note positions
+0000010C                           111      
+0000010C  D1D1                     112      adda.l  (a1), a0                        ; + Oldest index offset = Index to start drawing/checking
+0000010E                           113  
+0000010E                           114      
+0000010E  2410                     115      move.l  (a0), d2                        ; Farthest down note pos -> d2
+Line 116 ERROR: Undefined symbol
+00000110  EC8A                     116      lsr.l   #FIXED_POINT_BITS, d2           ; Convert to whole pixel
+00000112                           117      
+Line 118 ERROR: Undefined symbol
+00000112  4BF9 004DBD16            118      lea     InputFlags, a5
+00000118  DBC5                     119      add.l   d5, a5                          ; Check desired lane input flag
+0000011A                           120  
+0000011A  0C15 0000                121      cmp.b   #0, (a5)                        ; Compares input bit with 0
+0000011E  6700 00A2                122      beq     FINISH_COLLISION_CHECK          ; Branch if input not pressed ~Input bit == 0
+00000122                           123     
+Line 124 ERROR: Undefined symbol
+00000122  263C 004DBD16            124      move.l  #TARGET_LINE_Y, d3
+00000128  9682                     125      sub.l   d2, d3                          ; Target line - farthest down note pos
+0000012A                           126      
+0000012A  6A00 0004                127      bpl     SKIP_NEGATION                   ; Branches if number is already positive
+0000012E  4483                     128      neg.l   d3                              ; Negates the difference for the absolute value
+00000130                           129      
+00000130                           130  SKIP_NEGATION:
+00000130                           131      ; Checks the difference between position and the size of the note
+Line 132 ERROR: Undefined symbol
+00000130  B6BC 004DBD16            132      cmp.l   #(NOTE_SIZE), d3
+00000136  6E00 0048                133      bgt     NOTE_MISSED                     ; Branch if the difference is greater ~Not colliding 
+0000013A                           134      
+0000013A                           135      ; Increment Combo and update max combo if needed
+Line 136 ERROR: Undefined symbol
+0000013A  52B9 005455B8            136      add.l   #1, (CurrentCombo)
+Line 137 ERROR: Undefined symbol
+00000140  2039 004DBD16            137      move.l  (CurrentCombo), d0
+Line 138 ERROR: Undefined symbol
+00000146  B0B9 004DBD16            138      cmp.l   (EndBestCombo), d0
+0000014C  6D00 0008                139      blt     SKIP_SET_MAX_COMBO
+Line 140 ERROR: Undefined symbol
+00000150  23C0 005455B8            140      move.l  d0, (EndBestCombo)
+00000156                           141  SKIP_SET_MAX_COMBO:
+00000156                           142      ; Draw combo in seven segment
+Line 143 ERROR: Undefined symbol
+00000156  2F39 004DBD16            143      move.l  (CurrentCombo), -(sp)
+Line 144 ERROR: Undefined symbol
+0000015C  4EB9 004DBD16            144      jsr     DRAW_TWO_DIGIT_NUMBER
+Line 145 ERROR: Undefined symbol
+00000162  4FEF BD16                145      lea     (BYTES_IN_SEGMENT_PARAMS)(sp), sp
+00000166                           146      
+00000166                           147      ; Decrement total notes remaining
+Line 148 ERROR: Undefined symbol
+00000166  53B9 005455B8            148      subi.l  #1, (TotalNotes)
+Line 149 ERROR: Undefined symbol
+0000016C  0691 004DBD16            149      add.l   #BYTES_IN_LONG, (a1)            ; Remove from considerations for future draws/logic
+00000172                           150      
+00000172                           151      ; Add score and increase notes hit
+Line 152 ERROR: Undefined symbol
+00000172  52B9 005455B8            152      add.l   #1, (EndNotesHit)
+Line 153 ERROR: Undefined symbol
+00000178  4EB9 004DBD16            153      jsr     INCREASE_PERFORMANCE
+0000017E                           154      
+0000017E  6042                     155      bra.s   FINISH_COLLISION_CHECK
+00000180                           156  NOTE_MISSED:
+00000180                           157      ; Reset current combo and draw in seven segment
+Line 158 ERROR: Undefined symbol
+00000180  23FC 00000000 005455B8   158      move.l  #0, (CurrentCombo)
+Line 159 ERROR: Undefined symbol
+0000018A  2F39 004DBD16            159      move.l  (CurrentCombo), -(sp)
+Line 160 ERROR: Undefined symbol
+00000190  4EB9 004DBD16            160      jsr     DRAW_TWO_DIGIT_NUMBER
+Line 161 ERROR: Undefined symbol
+00000196  4FEF BD16                161      lea     (BYTES_IN_SEGMENT_PARAMS)(sp), sp
+0000019A                           162      
+0000019A                           163      ; Play Overstrum sound
+Line 164 ERROR: Undefined symbol
+0000019A  4EB9 004DBD16            164      jsr     GET_RANDOM_0_5_D7               ; Random from 0-5
+000001A0  E58F                     165      lsl.l   #2, d7                          ; Long indexing
+Line 166 ERROR: Undefined symbol
+000001A2  41F9 004DBD16            166      lea     OverstrumSounds, a0
+000001A8  41F0 7000                167      lea     (a0, d7), a0
+000001AC  2250                     168      move.l  (a0), a1
+Line 169 ERROR: Undefined symbol
+000001AE  203C 004DBD16            169      move.l  #PLAY_SOUND_DIRECTX_TASK, d0
+000001B4  4E4F                     170      trap    #15
+000001B6                           171      
+000001B6                           172      ; Subtract score and increase overstrums
+Line 173 ERROR: Undefined symbol
+000001B6  52B9 005455B8            173      add.l   #1, (EndOverstrums)
+Line 174 ERROR: Undefined symbol
+000001BC  4EB9 004DBD16            174      jsr     DECREASE_PERFORMANCE 
+000001C2                           175      
+000001C2                           176      
+000001C2                           177  FINISH_COLLISION_CHECK:
+000001C2  4E75                     178      rts
+000001C4                           179  
+000001C4                           180      ; Draws the notes in a specific lane
+000001C4                           181      ; Input d6 - Lane to draw
+000001C4                           182  DRAW_NOTES:
+Line 183 ERROR: Undefined symbol
+000001C4  0C39 0001 005455B8       183      cmp.b   #1, (SongFinished)
+000001CC  6700 00D6                184      beq     FINISH_DRAW_NOTES               ; Skip if no notes remaining
+000001D0                           185      
+000001D0  5386                     186      sub.l   #1, d6                          ; For indexing
+000001D2  E58E                     187      lsl.l   #2, d6
+000001D4                           188      
+Line 189 ERROR: Undefined symbol
+000001D4  41F9 004DBD16            189      lea     CurrentLaneTimings, a0
+000001DA  41F0 6000                190      lea     (a0, d6), a0                    ; Current timing index
+000001DE  2050                     191      move.l  (a0), a0                        ; Next Note timing
+000001E0  2850                     192      move.l  (a0), a4                        
+000001E2                           193      
+Line 194 ERROR: Undefined symbol
+000001E2  43F9 004DBD16            194      lea     OldestLaneNotes, a1
+000001E8  43F1 6000                195      lea     (a1, d6), a1
+000001EC  2251                     196      move.l  (a1), a1                        ; Farthest down note offset
+000001EE                           197      
+Line 198 ERROR: Undefined symbol
+000001EE  45F9 004DBD16            198      lea     LaneCurrentNotes, a2
+000001F4  45F2 6000                199      lea     (a2, d6), a2
+000001F8  2452                     200      move.l  (a2), a2                        ; Current note index
+000001FA                           201      
+Line 202 ERROR: Undefined symbol
+000001FA  47F9 004DBD16            202      lea     LaneCurrentNoteIndexs, a3
+00000200  47F3 6000                203      lea     (a3, d6), a3
+00000204  2653                     204      move.l  (a3), a3                        ; Current index
+00000206                           205        
+00000206                           206      
+Line 207 ERROR: Undefined symbol
+00000206  2039 004DBD16            207      move.l  (TimeElapsed), d0
+0000020C  C0FC 000A                208      mulu    #10, d0                         ; Multiply by 10 for thousands of a second
+00000210                           209      
+00000210                           210      ; Check the next notes timing
+00000210  7200                     211      moveq.l #0, d1
+00000212  3214                     212      move.w  (a4), d1
+00000214  B081                     213      cmp.l   d1, d0
+00000216  6D00 000C                214      blt     START_DRAW_LOOP                 ; Branch if the time elapsed < Next notes spawn time
+0000021A                           215      
+0000021A                           216      ; Increase the index of the next note spawn time, Current/most recent note index spawned, current index
+Line 217 ERROR: Undefined symbol
+0000021A  0692 004DBD16            217      add.l   #BYTES_IN_LONG, (a2)
+00000220  5293                     218      add.l   #1, (a3)
+00000222  5490                     219      add.l   #2, (a0)
+00000224                           220  
+00000224                           221  START_DRAW_LOOP:
+00000224                           222      ; Checks index
+00000224  0C93 00000000            223      cmp.l   #0, (a3)
+0000022A  6D00 0078                224      blt     FINISH_DRAW_NOTES               ; Branch and skip if index is invald ~ -1
+0000022E                           225      
+Line 226 ERROR: Undefined symbol
+0000022E  41F9 004DBD16            226      lea     LanePosTables, a0
+00000234  41F0 6000                227      lea     (a0, d6), a0
+00000238  2050                     228      move.l  (a0), a0                        ; Table of note positions
+0000023A                           229      
+0000023A  D1D1                     230      adda.l  (a1), a0                        ; + Passed notes offset
+0000023C                           231      
+0000023C  B1D2                     232      cmp.l   (a2), a0                        ; Note index >= Current note
+0000023E  6C00 0064                233      bge     FINISH_DRAW_NOTES               ; Skip to the end if no notes to currently draw
+00000242                           234  DRAW_LOOP:
+00000242                           235      
+00000242  47F9 0000063E            236      lea     DRAW_NOTE_ROUTINE_TABLE, a3 
+00000248  7000                     237      moveq.l #0, d0 
+0000024A  47F3 6000                238      lea     (a3, d6), a3
+0000024E  2653                     239      move.l  (a3), a3                        ; Pick lane to draw to
+00000250  4E93                     240      jsr     (a3)                            ; Draw note in specified lane
+00000252                           241      
+00000252                           242      
+00000252                           243      
+00000252  DF90                     244      add.l   d7, (a0)                        ; Update position for next draw
+00000254                           245      
+00000254                           246      ; Checks if the current note position < Bottom of the play area
+Line 247 ERROR: Invalid syntax
+00000254                           247      cmp.l   #((PLAY_AREA_BOTTOM_Y-NOTE_SIZE/2)<<FIXED_POINT_BITS), (a0)
+00000254  6D00 0048                248      blt     SKIP_REMOVE_NOTE                ; Branch and skip if current note is inside play area
+00000258                           249     
+00000258                           250      ; When note exceeds play area, reset combo and decrease score -------------
+00000258                           251      ; Reset combo
+Line 252 ERROR: Undefined symbol
+00000258  23FC 00000000 005455B8   252      move.l  #0, (CurrentCombo)
+Line 253 ERROR: Undefined symbol
+00000262  2F39 004DBD16            253      move.l  (CurrentCombo), -(sp)
+Line 254 ERROR: Undefined symbol
+00000268  4EB9 004DBD16            254      jsr     DRAW_TWO_DIGIT_NUMBER
+Line 255 ERROR: Undefined symbol
+0000026E  4FEF BD16                255      lea     (BYTES_IN_SEGMENT_PARAMS)(sp), sp
+Line 256 ERROR: Undefined symbol
+00000272  0691 004DBD16            256      add.l   #BYTES_IN_LONG, (a1) ;Remove from considerations for future draws/logic
+Line 257 ERROR: Undefined symbol
+00000278  53B9 005455B8            257      subi.l  #1, (TotalNotes)
+0000027E                           258      
+0000027E                           259      ; Play missed sound
+Line 260 ERROR: Undefined symbol
+0000027E  203C 004DBD16            260      move.l  #PLAY_SOUND_DIRECTX_TASK, d0
+Line 261 ERROR: Undefined symbol
+00000284  43F9 004DBD16            261      lea     MissedNoteFXString, a1
+0000028A  4E4F                     262      trap    #15
+0000028C                           263      
+Line 264 ERROR: Undefined symbol
+0000028C  52B9 005455B8            264      add.l   #1, (EndNotesMissed)
+Line 265 ERROR: Undefined symbol
+00000292  4EB9 004DBD16            265      jsr     DECREASE_PERFORMANCE
+00000298                           266      ; -------------------------------------------------------------------------
+Line 267 ERROR: Symbol value differs between first and second pass
+00000298                           267  SKIP_REMOVE_NOTE
+00000298  5888                     268      add.l   #4, a0
+0000029A  B1D2                     269      cmp.l   (a2), a0                        ; Repeat if there are still notes to draw between the current note
+0000029C                           270                                              ; and farthest down note
+0000029C  6DA4                     271      blt     DRAW_LOOP
+0000029E                           272      
+Line 273 ERROR: Symbol value differs between first and second pass
+0000029E                           273  FINISH_DRAW_NOTES:
+0000029E  4E75                     274      rts
+000002A0                           275  
+000002A0                           276  
+000002A0                           277      ; Draws and updates the progress bar
+000002A0                           278      
+Line 279 ERROR: Symbol value differs between first and second pass
+000002A0                           279  UPDATE_PROGRESS_BAR:
+000002A0                           280      ; Draw fill update
+Line 281 ERROR: Undefined symbol
+000002A0  203C 004DBD16            281      move.l  #SET_PEN_FILL_COLOR_TASK, d0
+Line 282 ERROR: Undefined symbol
+000002A6  223C 004DBD16            282      move.l  #WHITE, d1
+000002AC  4E4F                     283      trap    #15
+Line 284 ERROR: Undefined symbol
+000002AE  7016                     284      moveq.l #DRAW_RECT_TASK, d0
+Line 285 ERROR: Undefined symbol
+000002B0  223C 004DBD16            285      move.l  #PROGRESS_BAR_LEFT_X, d1
+Line 286 ERROR: Undefined symbol
+000002B6  2439 004DBD16            286      move.l  (ProgressBarFillHeightPos), d2
+Line 287 ERROR: Undefined symbol
+000002BC  EC8A                     287      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+Line 288 ERROR: Undefined symbol
+000002BE  263C 004DBD16            288      move.l  #PROGRESS_BAR_RIGHT_X, d3
+Line 289 ERROR: Undefined symbol
+000002C4  283C 004DBD16            289      move.l  #PROGRESS_BAR_BOTTOM_Y, d4
+000002CA  4E4F                     290      trap    #15
+000002CC                           291      
+000002CC                           292      ; Reset fill color
+Line 293 ERROR: Undefined symbol
+000002CC  203C 004DBD16            293      move.l  #SET_PEN_FILL_COLOR_TASK, d0
+000002D2  7200                     294      move.l  #0, d1
+000002D4  4E4F                     295      trap    #15
+000002D6                           296      
+000002D6                           297      ; Update progross position
+Line 298 ERROR: Undefined symbol
+000002D6  2C39 004DBD16            298      move.l  (ProgressSpeedPixelCentiSecond), d6
+Line 299 ERROR: Undefined symbol
+000002DC  2239 004DBD16            299      move.l  (DeltaTime), d1
+000002E2  CCC1                     300      mulu    d1, d6 
+Line 301 ERROR: Undefined symbol
+000002E4  9DB9 005455B8            301      sub.l   d6, (ProgressBarFillHeightPos)  
+000002EA                           302      
+000002EA  4E75                     303      rts
+000002EC                           304  
+000002EC                           305  
+000002EC                           306      ; Draws a note in lane 1
+Line 307 ERROR: Symbol value differs between first and second pass
+000002EC                           307  DRAW_NOTE_LANE1:
+000002EC                           308      
+000002EC                           309      ; Draws the Outer layer
+Line 310 ERROR: Undefined symbol
+000002EC  7016                     310      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 311 ERROR: Undefined symbol
+000002EE  223C 004DBD16            311      move.l  #LANE1_HAMMER_COLOR, d1
+000002F4  4E4F                     312      trap    #15
+Line 313 ERROR: Undefined symbol
+000002F6  7016                     313      moveq.l #DRAW_RECT_TASK, d0
+Line 314 ERROR: Invalid syntax
+000002F8                           314      move.l  #(LANE1_X-(NOTE_WIDTH/2)), d1
+000002F8  2410                     315      move.l  (a0), d2
+Line 316 ERROR: Undefined symbol
+000002FA  EC8A                     316      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+Line 317 ERROR: Invalid syntax
+000002FC                           317      subi.l  #(NOTE_SIZE/2), d2
+Line 318 ERROR: Invalid syntax
+000002FC                           318      move.l  #(LANE1_X+(NOTE_WIDTH/2)), d3
+000002FC  2802                     319      move.l  d2, d4
+Line 320 ERROR: Undefined symbol
+000002FE  0684 004DBD16            320      addi.l  #NOTE_SIZE, d4
+00000304  4E4F                     321      trap    #15
+00000306                           322      
+00000306                           323      ; Draws the inner layer
+Line 324 ERROR: Undefined symbol
+00000306  7016                     324      moveq.l #SET_PEN_FILL_COLOR_TASK, d0
+Line 325 ERROR: Undefined symbol
+00000308  223C 004DBD16            325      move.l  #LANE1_HAMMER_COLOR, d1
+0000030E  4E4F                     326      trap    #15
+Line 327 ERROR: Undefined symbol
+00000310  7016                     327      moveq.l #DRAW_RECT_TASK, d0
+Line 328 ERROR: Invalid syntax
+00000312                           328      move.l  #(LANE1_X-(NOTE_WIDTH/2)+5), d1
+00000312  2410                     329      move.l  (a0), d2
+Line 330 ERROR: Undefined symbol
+00000314  EC8A                     330      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+00000316  5A82                     331      add.l   #5, d2
+Line 332 ERROR: Invalid syntax
+00000318                           332      subi.l  #(NOTE_SIZE/2), d2
+Line 333 ERROR: Invalid syntax
+00000318                           333      move.l  #(LANE1_X+(NOTE_WIDTH/2)-5), d3
+00000318  2802                     334      move.l  d2, d4
+Line 335 ERROR: Undefined symbol
+0000031A  0684 004DBD16            335      addi.l  #NOTE_SIZE, d4
+00000320  0484 0000000A            336      sub.l   #10, d4
+00000326  4E4F                     337      trap    #15
+00000328                           338      
+00000328                           339      ; Reset pen and fill color
+Line 340 ERROR: Undefined symbol
+00000328  7016                     340      moveq.l #SET_PEN_FILL_COLOR_TASK, d0
+0000032A  7200                     341      move.l  #0, d1
+0000032C  4E4F                     342      trap    #15
+Line 343 ERROR: Undefined symbol
+0000032E  7016                     343      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 344 ERROR: Undefined symbol
+00000330  223C 004DBD16            344      move.l  #WHITE, d1
+00000336  4E4F                     345      trap    #15
+00000338                           346      
+00000338  4E75                     347      rts
+0000033A                           348      
+0000033A                           349      ; Draws a note in lane 1
+Line 350 ERROR: Symbol value differs between first and second pass
+0000033A                           350  DRAW_NOTE_LANE2:
+0000033A                           351      ; Draws the outer layer
+Line 352 ERROR: Undefined symbol
+0000033A  7016                     352      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 353 ERROR: Undefined symbol
+0000033C  223C 004DBD16            353      move.l  #LANE2_HAMMER_COLOR, d1
+00000342  4E4F                     354      trap    #15
+Line 355 ERROR: Undefined symbol
+00000344  7016                     355      moveq.l #DRAW_RECT_TASK, d0
+Line 356 ERROR: Invalid syntax
+00000346                           356      move.l  #(LANE2_X-(NOTE_WIDTH/2)), d1
+00000346  2410                     357      move.l  (a0), d2
+Line 358 ERROR: Undefined symbol
+00000348  EC8A                     358      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+Line 359 ERROR: Invalid syntax
+0000034A                           359      subi.l  #(NOTE_SIZE/2), d2
+Line 360 ERROR: Invalid syntax
+0000034A                           360      move.l  #(LANE2_X+(NOTE_WIDTH/2)), d3
+0000034A  2802                     361      move.l  d2, d4
+Line 362 ERROR: Undefined symbol
+0000034C  0684 004DBD16            362      addi.l  #NOTE_SIZE, d4
+00000352  4E4F                     363      trap    #15
+00000354                           364      
+00000354                           365      ; Draws the inner layer
+Line 366 ERROR: Undefined symbol
+00000354  7016                     366      moveq.l #SET_PEN_FILL_COLOR_TASK, d0
+Line 367 ERROR: Undefined symbol
+00000356  223C 004DBD16            367      move.l  #LANE2_HAMMER_COLOR, d1
+0000035C  4E4F                     368      trap    #15
+Line 369 ERROR: Undefined symbol
+0000035E  7016                     369      moveq.l #DRAW_RECT_TASK, d0
+Line 370 ERROR: Invalid syntax
+00000360                           370      move.l  #(LANE2_X-(NOTE_WIDTH/2)+5), d1
+00000360  2410                     371      move.l  (a0), d2
+Line 372 ERROR: Undefined symbol
+00000362  EC8A                     372      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+00000364  5A82                     373      add.l   #5, d2
+Line 374 ERROR: Invalid syntax
+00000366                           374      subi.l  #(NOTE_SIZE/2), d2
+Line 375 ERROR: Invalid syntax
+00000366                           375      move.l  #(LANE2_X+(NOTE_WIDTH/2)-5), d3
+00000366  2802                     376      move.l  d2, d4
+Line 377 ERROR: Undefined symbol
+00000368  0684 004DBD16            377      addi.l  #NOTE_SIZE, d4
+0000036E  0484 0000000A            378      sub.l   #10, d4
+00000374  4E4F                     379      trap    #15
+00000376                           380      
+00000376                           381      ; Reset pen and fill color
+Line 382 ERROR: Undefined symbol
+00000376  7016                     382      moveq.l #SET_PEN_FILL_COLOR_TASK, d0
+00000378  7200                     383      move.l  #0, d1
+0000037A  4E4F                     384      trap    #15
+Line 385 ERROR: Undefined symbol
+0000037C  7016                     385      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 386 ERROR: Undefined symbol
+0000037E  223C 004DBD16            386      move.l  #WHITE, d1
+00000384  4E4F                     387      trap    #15
+00000386                           388  
+00000386  4E75                     389      rts
+00000388                           390  
+Line 391 ERROR: Symbol value differs between first and second pass
+00000388                           391  DRAW_NOTE_LANE3:
+00000388                           392      ; Draws the outer layer
+Line 393 ERROR: Undefined symbol
+00000388  7016                     393      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 394 ERROR: Undefined symbol
+0000038A  223C 004DBD16            394      move.l  #LANE3_HAMMER_COLOR, d1
+00000390  4E4F                     395      trap    #15
+Line 396 ERROR: Undefined symbol
+00000392  7016                     396      moveq.l #DRAW_RECT_TASK, d0
+Line 397 ERROR: Invalid syntax
+00000394                           397      move.l  #(LANE3_X-(NOTE_WIDTH/2)), d1
+00000394  2410                     398      move.l  (a0), d2
+Line 399 ERROR: Undefined symbol
+00000396  EC8A                     399      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+Line 400 ERROR: Invalid syntax
+00000398                           400      subi.l  #(NOTE_SIZE/2), d2
+Line 401 ERROR: Invalid syntax
+00000398                           401      move.l  #(LANE3_X+(NOTE_WIDTH/2)), d3
+00000398  2802                     402      move.l  d2, d4
+Line 403 ERROR: Undefined symbol
+0000039A  0684 004DBD16            403      addi.l  #NOTE_SIZE, d4
+000003A0  4E4F                     404      trap    #15
+000003A2                           405      
+000003A2                           406      ; Draws the inner layer
+Line 407 ERROR: Undefined symbol
+000003A2  7016                     407      moveq.l #SET_PEN_FILL_COLOR_TASK, d0
+Line 408 ERROR: Undefined symbol
+000003A4  223C 004DBD16            408      move.l  #LANE3_HAMMER_COLOR, d1
+000003AA  4E4F                     409      trap    #15
+Line 410 ERROR: Undefined symbol
+000003AC  7016                     410      moveq.l #DRAW_RECT_TASK, d0
+Line 411 ERROR: Invalid syntax
+000003AE                           411      move.l  #(LANE3_X-(NOTE_WIDTH/2)+5), d1
+000003AE  2410                     412      move.l  (a0), d2
+Line 413 ERROR: Undefined symbol
+000003B0  EC8A                     413      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+000003B2  5A82                     414      add.l   #5, d2
+Line 415 ERROR: Invalid syntax
+000003B4                           415      subi.l  #(NOTE_SIZE/2), d2
+Line 416 ERROR: Invalid syntax
+000003B4                           416      move.l  #(LANE3_X+(NOTE_WIDTH/2)-5), d3
+000003B4  2802                     417      move.l  d2, d4
+Line 418 ERROR: Undefined symbol
+000003B6  0684 004DBD16            418      addi.l  #NOTE_SIZE, d4
+000003BC  0484 0000000A            419      sub.l   #10, d4
+000003C2  4E4F                     420      trap    #15
+000003C4                           421      
+000003C4                           422      ; Reset pen and fill color
+Line 423 ERROR: Undefined symbol
+000003C4  7016                     423      moveq.l #SET_PEN_FILL_COLOR_TASK, d0
+000003C6  7200                     424      move.l  #0, d1
+000003C8  4E4F                     425      trap    #15
+Line 426 ERROR: Undefined symbol
+000003CA  7016                     426      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 427 ERROR: Undefined symbol
+000003CC  223C 004DBD16            427      move.l  #WHITE, d1
+000003D2  4E4F                     428      trap    #15
+000003D4                           429  
+000003D4                           430      
+000003D4  4E75                     431      rts
+000003D6                           432      
+Line 433 ERROR: Symbol value differs between first and second pass
+000003D6                           433  DRAW_NOTE_LANE4:
+000003D6                           434      ; Draws the outer layer
+Line 435 ERROR: Undefined symbol
+000003D6  7016                     435      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 436 ERROR: Undefined symbol
+000003D8  223C 004DBD16            436      move.l  #LANE4_HAMMER_COLOR, d1
+000003DE  4E4F                     437      trap    #15
+Line 438 ERROR: Undefined symbol
+000003E0  7016                     438      moveq.l #DRAW_RECT_TASK, d0
+Line 439 ERROR: Invalid syntax
+000003E2                           439      move.l  #(LANE4_X-(NOTE_WIDTH/2)), d1
+000003E2  2410                     440      move.l  (a0), d2
+Line 441 ERROR: Undefined symbol
+000003E4  EC8A                     441      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+Line 442 ERROR: Invalid syntax
+000003E6                           442      subi.l  #(NOTE_SIZE/2), d2
+Line 443 ERROR: Invalid syntax
+000003E6                           443      move.l  #(LANE4_X+(NOTE_WIDTH/2)), d3
+000003E6  2802                     444      move.l  d2, d4
+Line 445 ERROR: Undefined symbol
+000003E8  0684 004DBD16            445      addi.l  #NOTE_SIZE, d4
+000003EE  4E4F                     446      trap    #15
+000003F0                           447      
+000003F0                           448      ; Draws the inner layer
+Line 449 ERROR: Undefined symbol
+000003F0  7016                     449      moveq.l #SET_PEN_FILL_COLOR_TASK, d0
+Line 450 ERROR: Undefined symbol
+000003F2  223C 004DBD16            450      move.l  #LANE4_HAMMER_COLOR, d1
+000003F8  4E4F                     451      trap    #15
+Line 452 ERROR: Undefined symbol
+000003FA  7016                     452      moveq.l #DRAW_RECT_TASK, d0
+Line 453 ERROR: Invalid syntax
+000003FC                           453      move.l  #(LANE4_X-(NOTE_WIDTH/2)+5), d1
+000003FC  2410                     454      move.l  (a0), d2
+Line 455 ERROR: Undefined symbol
+000003FE  EC8A                     455      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+00000400  5A82                     456      add.l   #5, d2
+Line 457 ERROR: Invalid syntax
+00000402                           457      subi.l  #(NOTE_SIZE/2), d2
+Line 458 ERROR: Invalid syntax
+00000402                           458      move.l  #(LANE4_X+(NOTE_WIDTH/2)-5), d3
+00000402  2802                     459      move.l  d2, d4
+Line 460 ERROR: Undefined symbol
+00000404  0684 004DBD16            460      addi.l  #NOTE_SIZE, d4
+0000040A  0484 0000000A            461      sub.l   #10, d4
+00000410  4E4F                     462      trap    #15
+00000412                           463      
+00000412                           464      ; Reset pen and fill color
+Line 465 ERROR: Undefined symbol
+00000412  7016                     465      moveq.l #SET_PEN_FILL_COLOR_TASK, d0
+00000414  7200                     466      move.l  #0, d1
+00000416  4E4F                     467      trap    #15
+Line 468 ERROR: Undefined symbol
+00000418  7016                     468      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 469 ERROR: Undefined symbol
+0000041A  223C 004DBD16            469      move.l  #WHITE, d1
+00000420  4E4F                     470      trap    #15
+00000422                           471  
+00000422                           472      
+00000422  4E75                     473      rts
+00000424                           474      
+Line 475 ERROR: Symbol value differs between first and second pass
+00000424                           475  DRAW_NOTE_LANE5:
+00000424                           476      ; Draw the outer layer
+Line 477 ERROR: Undefined symbol
+00000424  7016                     477      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 478 ERROR: Undefined symbol
+00000426  223C 004DBD16            478      move.l  #LANE5_HAMMER_COLOR, d1
+0000042C  4E4F                     479      trap    #15
+Line 480 ERROR: Undefined symbol
+0000042E  7016                     480      moveq.l #DRAW_RECT_TASK, d0
+Line 481 ERROR: Invalid syntax
+00000430                           481      move.l  #(LANE5_X-(NOTE_WIDTH/2)), d1
+00000430  2410                     482      move.l  (a0), d2
+Line 483 ERROR: Undefined symbol
+00000432  EC8A                     483      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+Line 484 ERROR: Invalid syntax
+00000434                           484      subi.l  #(NOTE_SIZE/2), d2
+Line 485 ERROR: Invalid syntax
+00000434                           485      move.l  #(LANE5_X+(NOTE_WIDTH/2)), d3
+00000434  2802                     486      move.l  d2, d4
+Line 487 ERROR: Undefined symbol
+00000436  0684 004DBD16            487      addi.l  #NOTE_SIZE, d4
+0000043C  4E4F                     488      trap    #15
+0000043E                           489      
+0000043E                           490      ; Draw the inner layer
+Line 491 ERROR: Undefined symbol
+0000043E  7016                     491      moveq.l #SET_PEN_FILL_COLOR_TASK, d0
+Line 492 ERROR: Undefined symbol
+00000440  223C 004DBD16            492      move.l  #LANE4_HAMMER_COLOR, d1
+00000446  4E4F                     493      trap    #15
+Line 494 ERROR: Undefined symbol
+00000448  7016                     494      moveq.l #DRAW_RECT_TASK, d0
+Line 495 ERROR: Invalid syntax
+0000044A                           495      move.l  #(LANE5_X-(NOTE_WIDTH/2)+5), d1
+0000044A  2410                     496      move.l  (a0), d2
+Line 497 ERROR: Undefined symbol
+0000044C  EC8A                     497      lsr.l   #FIXED_POINT_BITS, d2           ; Fix to whole number of pixels
+0000044E  5A82                     498      add.l   #5, d2
+Line 499 ERROR: Invalid syntax
+00000450                           499      subi.l  #(NOTE_SIZE/2), d2
+Line 500 ERROR: Invalid syntax
+00000450                           500      move.l  #(LANE5_X+(NOTE_WIDTH/2)-5), d3
+00000450  2802                     501      move.l  d2, d4
+Line 502 ERROR: Undefined symbol
+00000452  0684 004DBD16            502      addi.l  #NOTE_SIZE, d4
+00000458  0484 0000000A            503      sub.l   #10, d4
+0000045E  4E4F                     504      trap    #15
+00000460                           505      
+00000460                           506      ; Reset pen and fill color
+Line 507 ERROR: Undefined symbol
+00000460  7016                     507      moveq.l #SET_PEN_FILL_COLOR_TASK, d0
+00000462  7200                     508      move.l  #0, d1
+00000464  4E4F                     509      trap    #15
+Line 510 ERROR: Undefined symbol
+00000466  7016                     510      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 511 ERROR: Undefined symbol
+00000468  223C 004DBD16            511      move.l  #WHITE, d1
+0000046E  4E4F                     512      trap    #15
+00000470                           513  
+00000470                           514      
+00000470  4E75                     515      rts
+00000472                           516            
+00000472                           517      ; Displays all of the static gameplay elements
+Line 518 ERROR: Symbol value differs between first and second pass
+00000472                           518  DRAW_PLAY_AREA_STATIC_ELEMENTS:
+00000472                           519      ; Paint background of play area with black box
+Line 520 ERROR: Undefined symbol
+00000472  7016                     520      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 521 ERROR: Undefined symbol
+00000474  2239 004DBD16            521      move.l  (PlayAreaBoarderColor), d1
+0000047A  4E4F                     522      trap    #15
+Line 523 ERROR: Undefined symbol
+0000047C  7016                     523      moveq.l #DRAW_RECT_TASK, d0
+Line 524 ERROR: Undefined symbol
+0000047E  223C 004DBD16            524      move.l  #PLAY_AREA_LEFT_X, d1
+Line 525 ERROR: Undefined symbol
+00000484  243C 004DBD16            525      move.l  #PLAY_AREA_TOP_Y, d2
+Line 526 ERROR: Undefined symbol
+0000048A  263C 004DBD16            526      move.l  #PLAY_AREA_RIGHT_X, d3
+Line 527 ERROR: Undefined symbol
+00000490  283C 004DBD16            527      move.l  #PLAY_AREA_BOTTOM_Y, d4
+00000496  4E4F                     528      trap    #15
+00000498                           529      
+00000498                           530      ; Paint target Line
+Line 531 ERROR: Undefined symbol
+00000498  7016                     531      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 532 ERROR: Undefined symbol
+0000049A  223C 004DBD16            532      move.l  #WHITE, d1
+000004A0  4E4F                     533      trap    #15
+Line 534 ERROR: Undefined symbol
+000004A2  7016                     534      moveq.l #DRAW_LINE_START_END_TASK, d0
+Line 535 ERROR: Undefined symbol
+000004A4  7216                     535      moveq.l #TARGET_LINE_X1, d1
+Line 536 ERROR: Undefined symbol
+000004A6  243C 004DBD16            536      move.l  #TARGET_LINE_Y, d2
+Line 537 ERROR: Undefined symbol
+000004AC  263C 004DBD16            537      move.l  #TARGET_LINE_X2, d3
+Line 538 ERROR: Undefined symbol
+000004B2  283C 004DBD16            538      move.l  #TARGET_LINE_Y, d4
+000004B8  4E4F                     539      trap    #15
+000004BA                           540      
+000004BA                           541      ; Paint target line hammers -----------------------------------------------
+Line 542 ERROR: Undefined symbol
+000004BA  7016                     542      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 543 ERROR: Undefined symbol
+000004BC  223C 004DBD16            543      move.l  #LANE1_HAMMER_COLOR, d1
+000004C2  4E4F                     544      trap    #15
+Line 545 ERROR: Undefined symbol
+000004C4  7016                     545      moveq.l #DRAW_FILLED_OVAL_TASK, d0
+Line 546 ERROR: Invalid syntax
+000004C6                           546      move.l  #(LANE1_X-(NOTE_WIDTH/2)), d1
+Line 547 ERROR: Invalid syntax
+000004C6                           547      move.l  #(HAMMER_Y-(NOTE_SIZE/2)), d2
+Line 548 ERROR: Invalid syntax
+000004C6                           548      move.l  #(LANE1_X+(NOTE_WIDTH/2)), d3
+Line 549 ERROR: Invalid syntax
+000004C6                           549      move.l  #(HAMMER_Y+(NOTE_SIZE/2)), d4
+000004C6  4E4F                     550      trap    #15
+000004C8                           551      
+Line 552 ERROR: Undefined symbol
+000004C8  7016                     552      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 553 ERROR: Undefined symbol
+000004CA  223C 004DBD16            553      move.l  #LANE2_HAMMER_COLOR, d1
+000004D0  4E4F                     554      trap    #15
+Line 555 ERROR: Undefined symbol
+000004D2  7016                     555      moveq.l #DRAW_FILLED_OVAL_TASK, d0
+Line 556 ERROR: Invalid syntax
+000004D4                           556      move.l  #(LANE2_X-(NOTE_WIDTH/2)), d1
+Line 557 ERROR: Invalid syntax
+000004D4                           557      move.l  #(HAMMER_Y-(NOTE_SIZE/2)), d2
+Line 558 ERROR: Invalid syntax
+000004D4                           558      move.l  #(LANE2_X+(NOTE_WIDTH/2)), d3
+Line 559 ERROR: Invalid syntax
+000004D4                           559      move.l  #(HAMMER_Y+(NOTE_SIZE/2)), d4
+000004D4  4E4F                     560      trap    #15
+000004D6                           561      
+Line 562 ERROR: Undefined symbol
+000004D6  7016                     562      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 563 ERROR: Undefined symbol
+000004D8  223C 004DBD16            563      move.l  #LANE3_HAMMER_COLOR, d1
+000004DE  4E4F                     564      trap    #15
+Line 565 ERROR: Undefined symbol
+000004E0  7016                     565      moveq.l #DRAW_FILLED_OVAL_TASK, d0
+Line 566 ERROR: Invalid syntax
+000004E2                           566      move.l  #(LANE3_X-(NOTE_WIDTH/2)), d1
+Line 567 ERROR: Invalid syntax
+000004E2                           567      move.l  #(HAMMER_Y-(NOTE_SIZE/2)), d2
+Line 568 ERROR: Invalid syntax
+000004E2                           568      move.l  #(LANE3_X+(NOTE_WIDTH/2)), d3
+Line 569 ERROR: Invalid syntax
+000004E2                           569      move.l  #(HAMMER_Y+(NOTE_SIZE/2)), d4
+000004E2  4E4F                     570      trap    #15
+000004E4                           571      
+Line 572 ERROR: Undefined symbol
+000004E4  7016                     572      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 573 ERROR: Undefined symbol
+000004E6  223C 004DBD16            573      move.l  #LANE4_HAMMER_COLOR, d1
+000004EC  4E4F                     574      trap    #15
+Line 575 ERROR: Undefined symbol
+000004EE  7016                     575      moveq.l #DRAW_FILLED_OVAL_TASK, d0
+Line 576 ERROR: Invalid syntax
+000004F0                           576      move.l  #(LANE4_X-(NOTE_WIDTH/2)), d1
+Line 577 ERROR: Invalid syntax
+000004F0                           577      move.l  #(HAMMER_Y-(NOTE_SIZE/2)), d2
+Line 578 ERROR: Invalid syntax
+000004F0                           578      move.l  #(LANE4_X+(NOTE_WIDTH/2)), d3
+Line 579 ERROR: Invalid syntax
+000004F0                           579      move.l  #(HAMMER_Y+(NOTE_SIZE/2)), d4
+000004F0  4E4F                     580      trap    #15
+000004F2                           581      
+Line 582 ERROR: Undefined symbol
+000004F2  7016                     582      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 583 ERROR: Undefined symbol
+000004F4  223C 004DBD16            583      move.l  #LANE5_HAMMER_COLOR, d1
+000004FA  4E4F                     584      trap    #15
+Line 585 ERROR: Undefined symbol
+000004FC  7016                     585      moveq.l #DRAW_FILLED_OVAL_TASK, d0
+Line 586 ERROR: Invalid syntax
+000004FE                           586      move.l  #(LANE5_X-(NOTE_WIDTH/2)), d1
+Line 587 ERROR: Invalid syntax
+000004FE                           587      move.l  #(HAMMER_Y-(NOTE_SIZE/2)), d2
+Line 588 ERROR: Invalid syntax
+000004FE                           588      move.l  #(LANE5_X+(NOTE_WIDTH/2)), d3
+Line 589 ERROR: Invalid syntax
+000004FE                           589      move.l  #(HAMMER_Y+(NOTE_SIZE/2)), d4
+000004FE  4E4F                     590      trap    #15
+00000500                           591      ; -------------------------------------------------------------------------
+00000500                           592      
+00000500                           593      ; Reset Pen color
+Line 594 ERROR: Undefined symbol
+00000500  7016                     594      moveq.l #SET_PEN_COLOR_TASK, d0
+Line 595 ERROR: Undefined symbol
+00000502  223C 004DBD16            595      move.l  #WHITE, d1
+00000508  4E4F                     596      trap    #15
+0000050A                           597      
+0000050A  4E75                     598      rts
+0000050C                           599  
+0000050C                           600  
+Line 601 ERROR: Symbol value differs between first and second pass
+0000050C=                          601  DRAW_NOTE_ROUTINE_TABLE         dc.l DRAW_NOTE_LANE1, DRAW_NOTE_LANE2, DRAW_NOTE_LANE3, DRAW_NOTE_LANE4, DRAW_NOTE_LANE5
+0000050C                           602  
+0000050C                           603  
+0000050C                           604  
+0000050C                           605  
+0000050C                           606  
+0000050C                           607  
+0000050C                           608  
+0000050C                           609  
+0000050C                           610  
+0000050C                           611  
+0000050C                           612  
+0000050C                           613  
+0000050C                           614  
+0000050C                           615  
+0000050C                           616  
+0000050C                           617  
+0000050C                           618  
+0000050C                           619  
+0000050C                           620  
+0000050C                           621  
+0000050C                           622  
+0000050C                           623  
+0000050C                           624  
+0000050C                           625  
+0000050C                           626  
+0000050C                           627  
+0000050C                           628  
+0000050C                           629  
+0000050C                           630  
+0000050C                           631  
+0000050C                           632  
+0000050C                           633  
+0000050C                           634  
+Line 635 WARNING: END directive missing, starting address not set
+
+231 errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+DRAW_LOOP           242
+DRAW_NOTES          1C4
+DRAW_NOTE_LANE1     2F2
+DRAW_NOTE_LANE2     364
+DRAW_NOTE_LANE3     3D6
+DRAW_NOTE_LANE4     448
+DRAW_NOTE_LANE5     4BA
+DRAW_NOTE_ROUTINE_TABLE  63E
+DRAW_PLAY_AREA_STATIC_ELEMENTS  52C
+FINISH_COLLISION_CHECK  1C2
+FINISH_DRAW_NOTES   2A4
+FINISH_LEVEL_LOOP   E0
+LEVEL_LOOP          0
+NOTE_MISSED         180
+PROCESS_INPUTS      E2
+SKIP_NEGATION       130
+SKIP_REMOVE_NOTE    29E
+SKIP_SET_FINISH_FLAG  94
+SKIP_SET_MAX_COMBO  156
+START_DRAW_LOOP     224
+UPDATE_PROGRESS_BAR  2A6

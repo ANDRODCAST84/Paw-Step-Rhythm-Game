@@ -1,0 +1,312 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 6/5/2025 10:45:08 AM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : RoundingDivide
+00000000                             3  * Written by : Albert Castrejon
+00000000                             4  * Date       : 6/5/25
+00000000                             5  * Description: Divides 2 numbers with rounding
+00000000                             6  *-----------------------------------------------------------
+00000000                             7      INCLUDE "Equates.X68"
+00000000                             8  ; Data Sizes
+00000000  =00000004                  9  BYTES_IN_LONG               EQU 4
+00000000  =00000008                 10  BITS_IN_BYTE                EQU 8
+00000000  =0000003C                 11  BYTES_IN_ALL_REG            EQU BYTES_IN_LONG*15
+00000000  =00000004                 12  BYTES_IN_SEGMENT_PARAMS     EQU 4
+00000000                            13  
+00000000                            14  ALL_REG                     REG d0-d7/a0-a6
+00000000  =FFFFFFFC                 15  RETURN                      EQU -BYTES_IN_LONG    ; Always place function returns on top of stack
+00000000                            16                                                      ; right on top of jsr return address
+00000000  =00000001                 17  DBRA_ADJUSTMENT             EQU 1
+00000000                            18  
+00000000  =00000008                 19  FIXED_POINT_BITS            EQU 8
+00000000                            20  
+00000000  =00000000                 21  TOP_LEFT_SCREEN             EQU $00000000
+00000000  =00000280                 22  SCREEN_WIDTH                EQU 640
+00000000  =000001E0                 23  SCREEN_HEIGHT               EQU 480
+00000000                            24  
+00000000                            25  ; Time commands
+00000000  =00000008                 26  GET_TIME_TASK               EQU 8
+00000000  =00000017                 27  DELAY_TASK                  EQU 23
+00000000                            28  
+00000000                            29  ; Input commands
+00000000  =00000004                 30  INPUT_NUM_TASK              EQU 4
+00000000  =00000013                 31  KEY_INPUT_TASK              EQU 19
+00000000  =0000FFFF                 32  KEY_INPUT_TIMEOUT           EQU $FFFF
+00000000                            33  
+00000000                            34  ; Print commands
+00000000  =0000000D                 35  PRINT_CR_LF_TASK            EQU 13
+00000000                            36  
+00000000                            37  ; Graphics Commands
+00000000  =00000021                 38  SIZE_WINDOW_TASK            EQU 33
+00000000  =0000005D                 39  SET_PEN_WIDTH_TASK          EQU 93
+00000000  =00000050                 40  SET_PEN_COLOR_TASK          EQU 80
+00000000  =00000051                 41  SET_PEN_FILL_COLOR_TASK     EQU 81
+00000000  =0000000B                 42  CLEAR_SCREEN_TASK           EQU 11
+00000000  =0000FF00                 43  CLEAR_SCREEN_CODE           EQU $FF00
+00000000  =00000052                 44  DRAW_PIXEL_TASK             EQU 82
+00000000  =00000054                 45  DRAW_LINE_START_END_TASK    EQU 84
+00000000  =00000057                 46  DRAW_RECT_TASK              EQU 87
+00000000  =0000005A                 47  DRAW_UNFILLED_RECT_TASK     EQU 90
+00000000  =00000058                 48  DRAW_FILLED_OVAL_TASK       EQU 88
+00000000  =0000005C                 49  SET_DRAWING_MODE_TASK       EQU 92
+00000000  =00000011                 50  ENABLE_DOUBLE_BUFFER_CODE   EQU 17
+00000000  =0000005E                 51  PAINT_BUFFER_SCREEN_TASK    EQU 94
+00000000  =00000059                 52  FLOOD_FILL_TASK             EQU 89
+00000000                            53  
+00000000                            54  ; Colors
+00000000  =00FFFFFF                 55  WHITE                       EQU $FFFFFF
+00000000  =00000000                 56  BLACK                       EQU $000000
+00000000                            57  
+00000000  =00FF3F3F                 58  LEFT_HAMMER_COLOR           EQU $FF3F3F
+00000000  =003FFF43                 59  CENTER_HAMMER_COLOR         EQU $3FFF43
+00000000  =00433FFF                 60  RIGHT_HAMMER_COLOR          EQU $433FFF
+00000000                            61  
+00000000  =00323232                 62  PROGRESS_BACKGROUND_COLOR   EQU $323232
+00000000  =00FFFFFF                 63  PROGRESS_FILL_COLOR         EQU WHITE
+00000000                            64  
+00000000  =008C6E98                 65  SEVEN_SEGMENT_NUMBER_COLOR  EQU $8C6E98
+00000000  =00322637                 66  SEVEN_SEGMENT_BACKGROUND_COLOR EQU $322637
+00000000                            67  
+00000000                            68  ; Keycodes
+00000000  =00000077                 69  KEYCODE_W                   EQU 'w'    
+00000000  =00000061                 70  KEYCODE_A                   EQU 'a'    
+00000000  =00000073                 71  KEYCODE_S                   EQU 's'    
+00000000  =00000064                 72  KEYCODE_D                   EQU 'd'
+00000000  =0000000D                 73  KEYCODE_ENTER               EQU $D
+00000000                            74  
+00000000                            75  ; Shapes
+00000000  =00000032                 76  PLAY_AREA_LEFT_X            EQU 50
+00000000  =0000014A                 77  PLAY_AREA_RIGHT_X           EQU 330
+00000000  =00000000                 78  PLAY_AREA_TOP_Y             EQU 0
+00000000  =0000017B                 79  PLAY_AREA_BOTTOM_Y          EQU 379
+00000000                            80  
+00000000  =00000032                 81  QUARTER_LINE_X1             EQU PLAY_AREA_LEFT_X
+00000000  =0000014A                 82  QUARTER_LINE_X2             EQU PLAY_AREA_RIGHT_X
+00000000                            83  
+00000000  =00000032                 84  TARGET_LINE_X1              EQU PLAY_AREA_LEFT_X
+00000000  =0000014A                 85  TARGET_LINE_X2              EQU PLAY_AREA_RIGHT_X
+00000000  =00000136                 86  TARGET_LINE_Y               EQU 310
+00000000                            87  
+00000000  =00000078                 88  LEFT_LANE_X                 EQU 120
+00000000  =000000BE                 89  CENTER_LANE_X               EQU 190
+00000000  =00000104                 90  RIGHT_LANE_X                EQU 260
+00000000  =00000136                 91  HAMMER_Y                    EQU TARGET_LINE_Y
+00000000                            92  
+00000000  =00000244                 93  PROGRESS_BAR_LEFT_X         EQU 580
+00000000  =00000276                 94  PROGRESS_BAR_RIGHT_X        EQU 630
+00000000  =0000000A                 95  PROGRESS_BAR_TOP_Y          EQU 10
+00000000  =00000177                 96  PROGRESS_BAR_BOTTOM_Y       EQU 375
+00000000                            97  
+00000000  =00000016                 98  SEGMENT_LENGTH              EQU 22
+00000000  =00000005                 99  SEGMENT_WIDTH               EQU 5
+00000000  =00000247                100  SEGMENT_ONES_PLACE_POS_X    EQU 583
+00000000  =000001AE                101  SEGMENT_ONES_PLACE_POS_Y    EQU 430
+00000000  =00000023                102  SEGMENT_PLACE_X_OFFSET      EQU 35
+00000000  =0000000A                103  SEGMENT_NUMBER_BASE         EQU 10
+00000000  =00000005                104  SEGMENT_BACKGROUND_PADDING  EQU SEGMENT_WIDTH
+00000000                           105  
+00000000                           106  
+00000000                           107  
+00000000                           108  ; Gameplay                              ;  aassdd
+00000000  =00415344                109  LEVEL_TARGET_INPUTS                 EQU $00415344
+00000000  =00000010                110  A_PRESSED_BIT_OFFSET                EQU 16
+00000000  =00000008                111  S_PRESSED_BIT_OFFSET                EQU 8
+00000000  =00000000                112  D_PRESSED_BIT_OFFSET                EQU 0
+00000000                           113  
+00000000  =00000028                114  NOTE_SIZE                           EQU 40
+00000000  =FFFFFFBB                115  NOTE_SPAWN_Y                        EQU TARGET_LINE_Y-PLAY_AREA_BOTTOM_Y
+00000000                           116  
+00000000                           117  ; Sounds
+00000000  =00000008                118  GET_TIME_TASK                       EQU 8
+00000000                           119  
+00000000  =00003FFF                120  MAX_NOTES                           EQU ($FFFF/4) ; Max possible in word
+00000000                           121  
+00000000                           122  ; Supported file type and format
+00000000  =534F4E44                123  SOUND_FILE_SIGNATURE                EQU 'SOND'
+00000000                           124  
+00000000                           125  ; Sound file offsets
+00000000  =00000004                126  OFFSET_SOUND_QUARTER_NOTE_TICKS     EQU 4
+00000000  =00000006                127  OFFSET_SOUND_TEMPO                  EQU 6
+00000000  =0000000A                128  OFFSET_EVENTS_LENGTH                EQU 10
+00000000  =0000000C                129  OFFSET_KEYPRESS_AMOUNT              EQU 12
+00000000  =0000000E                130  OFFSET_START_NOTE_EVENTS            EQU 14
+00000000                           131  
+00000000                           132  ; Bitmaps
+00000000  =0000424D                133  FILE_SIGNATURE              EQU 'BM'
+00000000                           134  
+00000000  =0000000A                135  OFFSET_PIXELARRAY_OFFSET    EQU 10
+00000000  =0000001C                136  OFFSET_BITSPERPIXEL         EQU $1C
+00000000  =00000012                137  OFFSET_BITMAP_WIDTH         EQU $12
+00000000  =00000016                138  OFFSET_BITMAP_HEIGHT        EQU $16
+00000000                           139  
+00000000  =00000010                140  BITMAP_CHUNK_PARAM_SIZE     EQU 16
+00000000                           141  
+00000000                           142  
+00000000                           143  
+00000000                           144  
+00000000                           145  
+00000000                           146  
+00000000                           147  
+00000000                           148  
+00000000                           149  
+00000000                           150  
+00000000                           151  
+00000000                           152  -------------------- end include --------------------
+00000000                           153  
+00001000                           154      ORG    $1000
+00001000                           155  START:                  ; first instruction of program
+00001000                           156  
+00001000  2F3C 00000003            157      move.l  #3, -(sp)
+00001006  2F3C 00000014            158      move.l  #20, -(sp)
+0000100C  4EB9 0000101E            159      jsr     DIVIDE_WITH_ROUNDING
+00001012  4FEF 0008                160      lea     (ROUNDING_DIVIDE_PARAM_SIZE)(sp), sp
+00001016  2E2F FFFC                161      move.l  (RETURN)(sp), d7
+0000101A                           162  
+0000101A  FFFF FFFF                163      SIMHALT             ; halt simulator
+0000101E                           164  
+0000101E                           165  ROUNDING_DIVIDE_REG             REG d0-d2
+0000101E  =0000000C                166  ROUNDING_DIVIDE_REG_SIZE        EQU BYTES_IN_LONG*3
+0000101E                           167  
+0000101E  =00000010                168  DIVIDEND                        EQU ROUNDING_DIVIDE_REG_SIZE+4
+0000101E  =00000014                169  DIVISOR                         EQU ROUNDING_DIVIDE_REG_SIZE+8
+0000101E  =00000008                170  ROUNDING_DIVIDE_PARAM_SIZE      EQU BYTES_IN_LONG*2
+0000101E                           171  
+0000101E  =00000014                172  ROUNDING_DIVIDE_RETURN_OFFSET   EQU ROUNDING_DIVIDE_REG_SIZE+ROUNDING_DIVIDE_PARAM_SIZE
+0000101E                           173  
+0000101E                           174  * Put variables and constants here
+0000101E                           175  
+0000101E                           176  * Inputs Dividend: Number being divided
+0000101E                           177  *        Divisor:  Nuber to divide by
+0000101E                           178  * Output           Divided number with rounding taken into account
+0000101E                           179  * Return RETURN:   Quotient with rounding
+0000101E                           180  DIVIDE_WITH_ROUNDING:
+0000101E  48E7 E000                181      movem.l ROUNDING_DIVIDE_REG, -(sp)
+00001022  202F 0014                182      move.l  (DIVISOR)(sp), d0
+00001026  222F 0010                183      move.l  (DIVIDEND)(sp), d1
+0000102A  2401                     184      move.l  d1, d2
+0000102C                           185      
+0000102C                           186      ; Get remeinder
+0000102C  84C0                     187      divu    d0, d2
+0000102E  4842                     188      swap    d2
+00001030  48C2                     189      ext.l   d2
+00001032                           190      
+00001032  D282                     191      add.l   d2, d1
+00001034                           192      
+00001034                           193      ; Final Quotient
+00001034  82C0                     194      divu    d0, d1
+00001036  48C1                     195      ext.l   d1
+00001038                           196      
+00001038  2F41 0014                197      move.l  d1, ROUNDING_DIVIDE_RETURN_OFFSET(sp) ; Put in stack accessable outside of func
+0000103C                           198                                                    ; using (RETURN)(sp)
+0000103C  4CDF 0007                199      movem.l (sp)+, ROUNDING_DIVIDE_REG
+00001040  4E75                     200      rts
+00001042                           201  
+00001042                           202  
+00001042                           203      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ALL_REG             7FFF
+A_PRESSED_BIT_OFFSET  10
+BITMAP_CHUNK_PARAM_SIZE  10
+BITS_IN_BYTE        8
+BLACK               0
+BYTES_IN_ALL_REG    3C
+BYTES_IN_LONG       4
+BYTES_IN_SEGMENT_PARAMS  4
+CENTER_HAMMER_COLOR  3FFF43
+CENTER_LANE_X       BE
+CLEAR_SCREEN_CODE   FF00
+CLEAR_SCREEN_TASK   B
+DBRA_ADJUSTMENT     1
+DELAY_TASK          17
+DIVIDEND            10
+DIVIDE_WITH_ROUNDING  101E
+DIVISOR             14
+DRAW_FILLED_OVAL_TASK  58
+DRAW_LINE_START_END_TASK  54
+DRAW_PIXEL_TASK     52
+DRAW_RECT_TASK      57
+DRAW_UNFILLED_RECT_TASK  5A
+D_PRESSED_BIT_OFFSET  0
+ENABLE_DOUBLE_BUFFER_CODE  11
+FILE_SIGNATURE      424D
+FIXED_POINT_BITS    8
+FLOOD_FILL_TASK     59
+GET_TIME_TASK       8
+HAMMER_Y            136
+INPUT_NUM_TASK      4
+KEYCODE_A           61
+KEYCODE_D           64
+KEYCODE_ENTER       D
+KEYCODE_S           73
+KEYCODE_W           77
+KEY_INPUT_TASK      13
+KEY_INPUT_TIMEOUT   FFFF
+LEFT_HAMMER_COLOR   FF3F3F
+LEFT_LANE_X         78
+LEVEL_TARGET_INPUTS  415344
+MAX_NOTES           3FFF
+NOTE_SIZE           28
+NOTE_SPAWN_Y        FFFFFFBB
+OFFSET_BITMAP_HEIGHT  16
+OFFSET_BITMAP_WIDTH  12
+OFFSET_BITSPERPIXEL  1C
+OFFSET_EVENTS_LENGTH  A
+OFFSET_KEYPRESS_AMOUNT  C
+OFFSET_PIXELARRAY_OFFSET  A
+OFFSET_SOUND_QUARTER_NOTE_TICKS  4
+OFFSET_SOUND_TEMPO  6
+OFFSET_START_NOTE_EVENTS  E
+PAINT_BUFFER_SCREEN_TASK  5E
+PLAY_AREA_BOTTOM_Y  17B
+PLAY_AREA_LEFT_X    32
+PLAY_AREA_RIGHT_X   14A
+PLAY_AREA_TOP_Y     0
+PRINT_CR_LF_TASK    D
+PROGRESS_BACKGROUND_COLOR  323232
+PROGRESS_BAR_BOTTOM_Y  177
+PROGRESS_BAR_LEFT_X  244
+PROGRESS_BAR_RIGHT_X  276
+PROGRESS_BAR_TOP_Y  A
+PROGRESS_FILL_COLOR  FFFFFF
+QUARTER_LINE_X1     32
+QUARTER_LINE_X2     14A
+RETURN              FFFFFFFC
+RIGHT_HAMMER_COLOR  433FFF
+RIGHT_LANE_X        104
+ROUNDING_DIVIDE_PARAM_SIZE  8
+ROUNDING_DIVIDE_REG  7
+ROUNDING_DIVIDE_REG_SIZE  C
+ROUNDING_DIVIDE_RETURN_OFFSET  14
+SCREEN_HEIGHT       1E0
+SCREEN_WIDTH        280
+SEGMENT_BACKGROUND_PADDING  5
+SEGMENT_LENGTH      16
+SEGMENT_NUMBER_BASE  A
+SEGMENT_ONES_PLACE_POS_X  247
+SEGMENT_ONES_PLACE_POS_Y  1AE
+SEGMENT_PLACE_X_OFFSET  23
+SEGMENT_WIDTH       5
+SET_DRAWING_MODE_TASK  5C
+SET_PEN_COLOR_TASK  50
+SET_PEN_FILL_COLOR_TASK  51
+SET_PEN_WIDTH_TASK  5D
+SEVEN_SEGMENT_BACKGROUND_COLOR  322637
+SEVEN_SEGMENT_NUMBER_COLOR  8C6E98
+SIZE_WINDOW_TASK    21
+SOUND_FILE_SIGNATURE  534F4E44
+START               1000
+S_PRESSED_BIT_OFFSET  8
+TARGET_LINE_X1      32
+TARGET_LINE_X2      14A
+TARGET_LINE_Y       136
+TOP_LEFT_SCREEN     0
+WHITE               FFFFFF
